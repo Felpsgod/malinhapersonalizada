@@ -1,0 +1,29 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "pecas": {
+      "$peca": {
+        ".validate": "newData.hasChildren(['nome', 'valor', 'categoria'])",
+        "nome":     { ".validate": "newData.isString() && newData.val().length <= 120" },
+        "valor":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "categoria":{ ".validate": "newData.isString()" },
+        "foto":     { ".validate": "newData.isString()" },
+        "criadoEm": { ".validate": "newData.isString()" },
+        "$outro":   { ".validate": false }
+      }
+    },
+    "bolsas": {
+      "$bolsa": {
+        ".validate": "newData.hasChild('nome')",
+        "nome":     { ".validate": "newData.isString() && newData.val().length <= 120" },
+        "obs":      { ".validate": "newData.isString()" },
+        "criadoEm": { ".validate": "newData.isString()" },
+        "itens": {
+          "$peca": { ".validate": "newData.isBoolean() && root.child('pecas').child($peca).exists()" }
+        },
+        "$outro":   { ".validate": false }
+      }
+    }
+  }
+}
