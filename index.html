@@ -8,7 +8,28 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👗</text></svg>">
 <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body>
+<body class="is-locked">
+
+<!-- ===================== PORTÃO DE ACESSO ===================== -->
+<div class="gate" id="gate">
+  <div class="gate__card">
+    <span class="nav__mark" aria-hidden="true"></span>
+    <h1 class="h-sm">Malinha Personalizada</h1>
+    <p class="lede lede--sm">Entre para ver o estoque e as malinhas.</p>
+    <form class="form" id="form-login">
+      <div class="field">
+        <label for="login-email">E-mail</label>
+        <input id="login-email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-senha">Senha</label>
+        <input id="login-senha" type="password" autocomplete="current-password" required>
+      </div>
+      <p class="err" id="login-err"></p>
+      <button type="submit" class="btn btn--primary" id="login-submit">Entrar</button>
+    </form>
+  </div>
+</div>
 
 <header class="nav">
   <div class="nav__inner">
@@ -21,8 +42,12 @@
       <button class="tab" role="tab" data-tab="bolsas" aria-selected="false">Bolsas</button>
       <button class="tab" role="tab" data-tab="relatorios" aria-selected="false">Relatórios</button>
     </nav>
-    <div class="nav__status" id="sync-status" title="Estado da sincronização">
-      <span class="dot"></span><span id="sync-text">conectando…</span>
+    <div class="nav__end">
+      <div class="nav__status" id="sync-status" title="Estado da sincronização">
+        <span class="dot"></span><span id="sync-text">conectando…</span>
+      </div>
+      <span class="nav__conta" id="conta-email"></span>
+      <button class="btn btn--neutral btn--sm" id="btn-sair">Sair</button>
     </div>
   </div>
 </header>

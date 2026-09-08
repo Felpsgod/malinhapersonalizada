@@ -1,8 +1,14 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true,
+    ".read": "auth != null && root.child('acesso').child(auth.uid).val() === true",
+    ".write": false,
+
+    "acesso": {
+      ".write": false
+    },
+
     "pecas": {
+      ".write": "auth != null && root.child('acesso').child(auth.uid).val() === true",
       "$peca": {
         ".validate": "newData.hasChildren(['nome', 'valor', 'categoria'])",
         "nome":     { ".validate": "newData.isString() && newData.val().length <= 120" },
@@ -13,7 +19,9 @@
         "$outro":   { ".validate": false }
       }
     },
+
     "bolsas": {
+      ".write": "auth != null && root.child('acesso').child(auth.uid).val() === true",
       "$bolsa": {
         ".validate": "newData.hasChild('nome')",
         "nome":     { ".validate": "newData.isString() && newData.val().length <= 120" },

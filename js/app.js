@@ -1,7 +1,9 @@
-// Ponto de entrada: abas, carga inicial e ligação dos módulos de tela.
+// Ponto de entrada: portão de acesso, abas, carga inicial e ligação dos
+// módulos de tela.
 
+import { entrar, onAuth, restaurar, sair, usuario } from './auth.js';
 import { onNetwork } from './db.js';
-import { carregar, onChange } from './store.js';
+import { carregar, limpar, onChange } from './store.js';
 import { toast } from './utils.js';
 import { iniciarModais } from './modais.js';
 import { iniciarEstoque, renderEstoque } from './estoque.js';
@@ -65,6 +67,53 @@ function renderTudo() {
   renderRelatorios();
 }
 
+async function carregarAcervo() {
+  try {
+    await carregar();
+  } catch (err) {
+    toast(`Não consegui carregar os dados: ${err.message}`, 'err');
+    renderTudo();
+  }
+}
+
+/* ----------------------------- portão de acesso -------------------------- */
+
+/** Mostra o app ou a tela de login conforme houver sessão. */
+function refletirSessao(user) {
+  document.body.classList.toggle('is-locked', !user);
+  $('#gate').hidden = !!user;
+  $('#conta-email').textContent = user?.email || '';
+  if (user) $('#form-login').reset();
+}
+
+function iniciarPortao() {
+  onAuth(refletirSessao);
+
+  $('#form-login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('#login-err');
+    const btn = $('#login-submit');
+    err.textContent = '';
+    btn.disabled = true;
+    try {
+      await entrar($('#login-email').value, $('#login-senha').value);
+      await carregarAcervo();
+    } catch (e2) {
+      err.textContent = e2.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('#btn-sair').addEventListener('click', () => {
+    sair();
+    limpar();
+    toast('Você saiu.', 'ok');
+  });
+}
+
+/* --------------------------------- início -------------------------------- */
+
 async function principal() {
   iniciarStatus();
   iniciarModais();
@@ -72,15 +121,17 @@ async function principal() {
   iniciarBolsas();
   iniciarRelatorios();
   iniciarAbas();
+  iniciarPortao();
 
   onChange(renderTudo);
 
+  // Sessão da visita anterior: se o refresh token ainda valer, entra direto.
   try {
-    await carregar();
-  } catch (err) {
-    toast(`Não consegui carregar os dados: ${err.message}`, 'err');
-    renderTudo();
+    await restaurar();
+  } catch {
+    // Sem rede na abertura: cai na tela de login, que tenta de novo.
   }
+  if (usuario()) await carregarAcervo();
 }
 
 principal();

@@ -42,6 +42,15 @@ export async function carregar() {
   emit();
 }
 
+/** Zera o estado ao sair — nada do acervo fica na tela para o próximo. */
+export function limpar() {
+  state.pecas = {};
+  state.bolsas = {};
+  state.bolsaAtiva = null;
+  state.carregado = false;
+  emit();
+}
+
 /* ------------------------------ seletores -------------------------------- */
 
 export function listaPecas() {

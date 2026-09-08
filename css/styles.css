@@ -85,6 +85,28 @@ button { cursor: pointer; }
   .h-lg { font-size: 56px; letter-spacing: -0.9px; line-height: 1.06; }
 }
 
+/* ------------------------------ Portão de acesso -------------------------- */
+/* Enquanto não há sessão, o app inteiro fica fora do DOM visível: nada do
+   acervo aparece atrás da tela de login, nem por um quadro. */
+.is-locked .nav, .is-locked .page { display: none; }
+
+.gate {
+  min-height: 100vh; display: grid; place-items: center; padding: var(--s6);
+}
+.gate__card {
+  background: var(--paper); border: 1px solid var(--fog);
+  border-radius: var(--r-card); padding: var(--s9) var(--s8);
+  width: min(400px, 100%); text-align: center;
+}
+.gate__card .nav__mark { width: 36px; height: 36px; border-radius: 11px; display: inline-block; }
+.gate__card h1 { margin: var(--s5) 0 var(--s2); }
+.gate__card .form { margin-top: var(--s7); text-align: left; }
+.gate__card .field + .field { margin-top: var(--s4); }
+.gate__card .btn { width: 100%; margin-top: var(--s5); }
+.gate__card .err:empty { display: none; }
+.gate__card .err { margin: var(--s4) 0 0; }
+.lede--sm { font-size: 15px; margin: 0; }
+
 /* ---------------------------------- Nav ---------------------------------- */
 .nav {
   position: sticky; top: 0; z-index: 40;
@@ -127,12 +149,18 @@ button { cursor: pointer; }
 .nav__status[data-state="ok"] .dot { background: var(--green); }
 .nav__status[data-state="busy"] .dot { background: var(--orange); }
 .nav__status[data-state="err"] .dot { background: var(--red); }
+.nav__end { display: flex; align-items: center; gap: var(--s3); }
+.nav__conta {
+  font-size: 12px; color: var(--iron); max-width: 180px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 720px) { .nav__conta { display: none; } }
 
 @media (max-width: 720px) {
   .nav__inner { height: auto; padding: var(--s3) var(--s4); flex-wrap: wrap; gap: var(--s3); }
   .tabs { margin-left: 0; order: 3; width: 100%; }
   .tab { flex: 1; text-align: center; }
-  .nav__status { margin-left: auto; }
+  .nav__end { margin-left: auto; }
 }
 
 /* ---------------------------------- Página ------------------------------- */

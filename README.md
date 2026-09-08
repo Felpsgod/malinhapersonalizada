@@ -26,8 +26,7 @@ selo `+n` na frente da bolsa.
 
 ## Dados
 
-Tudo é salvo no Firebase Realtime Database via API REST — sem SDK e sem chave de
-API no cliente:
+Tudo é salvo no Firebase Realtime Database via API REST, sem SDK:
 
 ```
 https://malinhapersonalizada-default-rtdb.firebaseio.com
@@ -61,12 +60,44 @@ As fotos são comprimidas no navegador antes de subir (redimensionadas para no
 máximo 900px no lado maior e convertidas em JPEG), então cabem tranquilamente
 como base64 dentro do Realtime Database.
 
-### Regras do banco
+## Acesso
 
-O arquivo [`firebase-rules.json`](firebase-rules.json) traz regras com validação
-de formato. **O banco está hoje com leitura e escrita públicas** — qualquer
-pessoa com o link consegue ler e alterar os dados. Para uso real, vale ativar
-autenticação no Firebase e trocar `.read`/`.write` por uma checagem de usuário.
+O site é público (GitHub Pages), então **quem protege os dados são as regras do
+Realtime Database, não a visibilidade do repositório**. A `FIREBASE_URL` e a
+`FIREBASE_API_KEY` vão no código do navegador de qualquer jeito — nenhuma das
+duas é segredo. Elas apenas identificam o projeto.
+
+O app abre numa tela de login. A autenticação é por e-mail e senha, via API REST
+do Identity Toolkit (sem SDK), e as regras só liberam leitura e escrita para
+UIDs listados em `/acesso`. Quem não estiver na lista não passa, mesmo tendo
+conta no projeto.
+
+O token de acesso vale 1 hora e é renovado sozinho pelo refresh token, que fica
+no `localStorage` — fechar e reabrir a aba não pede a senha de novo.
+
+### Configurar (uma vez, no console do Firebase)
+
+1. **Ativar o login.** Authentication → Sign-in method → ative *E-mail/senha*.
+2. **Criar o usuário.** Authentication → Users → *Add user*, com e-mail e senha.
+   Copie o **UID** que aparece na lista.
+3. **Liberar o UID.** Realtime Database → Dados → crie o nó `acesso` e, dentro
+   dele, um filho com o UID como chave e o booleano `true` como valor:
+
+   ```jsonc
+   { "acesso": { "SEU_UID_AQUI": true } }
+   ```
+
+4. **Publicar as regras.** Realtime Database → Regras → cole o conteúdo de
+   [`firebase-rules.json`](firebase-rules.json) e publique.
+5. **Apontar a chave.** Configurações do projeto → Geral → Seus apps → copie a
+   *Web API Key* e cole em `FIREBASE_API_KEY`, em
+   [`js/config.js`](js/config.js).
+
+Faça o passo 3 **antes** do 4: publicar as regras com `/acesso` vazio tranca o
+banco para todo mundo, inclusive para você, e a única saída é reabrir as regras
+pelo console.
+
+Para dar acesso a outra pessoa, repita os passos 2 e 3 — as regras não mudam.
 
 ## Rodar localmente
 
@@ -94,17 +125,18 @@ sem processamento do Jekyll.
 ## Estrutura
 
 ```
-index.html            marcação das três abas e dos modais
+index.html            tela de login, marcação das três abas e dos modais
 css/styles.css        design tokens e componentes
-js/config.js          URL do Firebase e catálogo de categorias
-js/db.js              cliente REST do Realtime Database
+js/config.js          URL e chave do Firebase, catálogo de categorias
+js/auth.js            login por e-mail e senha (REST) e renovação do token
+js/db.js              cliente REST do Realtime Database, assinado com o token
 js/store.js           estado + operações que persistem
 js/utils.js           formatação BRL, compressão de imagem, toasts, CSV
 js/tote.js            SVG da bolsa e das peças guardadas dentro
 js/estoque.js         aba Estoque
 js/bolsas.js          aba Bolsas (drag & drop, look, bolsa)
 js/relatorios.js      aba Relatórios
-js/app.js             abas, carga inicial, status de sincronização
+js/app.js             portão de acesso, abas, carga inicial, sincronização
 ```
 
 ## Design
