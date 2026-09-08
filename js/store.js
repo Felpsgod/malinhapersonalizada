@@ -67,7 +67,7 @@ export function indiceUso() {
   return idx;
 }
 
-/** Peças de uma bolsa, já ordenadas pela ordem de vestir do manequim. */
+/** Peças de uma bolsa, já ordenadas pela ordem de vestir do look. */
 export function itensDaBolsa(bolsaId) {
   const bolsa = state.bolsas[bolsaId];
   if (!bolsa) return [];

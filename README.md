@@ -1,7 +1,7 @@
 # Malinha Personalizada
 
 Sistema de controle de roupas: estoque com foto, montagem de malinhas por pessoa
-(arrastando as peças para vestir um manequim) e relatórios de uso.
+(arrastando as peças para dentro de uma bolsa) e relatórios de uso.
 
 Site estático — HTML, CSS e JavaScript puro com ES modules. **Sem build, sem
 dependências, sem npm.** Basta publicar a pasta.
@@ -11,17 +11,18 @@ dependências, sem npm.** Basta publicar a pasta.
 | Aba | O que faz |
 | --- | --- |
 | **Estoque** | Cadastro de peças com foto, nome, valor e categoria. Busca, filtros por categoria e por situação (livre / em uso), editar e excluir. |
-| **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para o manequim (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome e valor de cada peça ao lado e o total embaixo. Editar e excluir bolsa. |
+| **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para dentro da bolsa (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome e valor de cada peça ao lado e o total embaixo. Editar e excluir bolsa. |
 | **Relatórios** | O que está em uso e com quem, o que continua livre, valor em circulação x valor parado, resumo por bolsa e exportação em CSV. |
 
 **Regra central:** uma peça só pode estar em uma bolsa por vez. É isso que torna
 o relatório de "em uso x livre" confiável — a peça alocada aparece marcada no
 estoque com o nome da pessoa e não pode ser colocada em outra malinha.
 
-O manequim é um SVG com regiões recortadas por categoria (topo, baixo, vestido,
-casaco, calçado e acessório). A foto da peça é aplicada dentro do recorte
-correspondente, respeitando a ordem de vestir (calça por baixo da blusa, casaco
-por cima de tudo).
+A bolsa é um SVG desenhado de frente. Cada peça guardada aparece espetada para
+fora da boca, com a foto recortada, e some por trás da frente da bolsa — a
+leitura é de peça guardada dentro. As peças entram na ordem de vestir (calça
+antes da blusa, casaco por último) e, a partir da sexta, o excedente vira um
+selo `+n` na frente da bolsa.
 
 ## Dados
 
@@ -99,9 +100,9 @@ js/config.js          URL do Firebase e catálogo de categorias
 js/db.js              cliente REST do Realtime Database
 js/store.js           estado + operações que persistem
 js/utils.js           formatação BRL, compressão de imagem, toasts, CSV
-js/mannequin.js       SVG do manequim e recortes por categoria
+js/tote.js            SVG da bolsa e das peças guardadas dentro
 js/estoque.js         aba Estoque
-js/bolsas.js          aba Bolsas (drag & drop, look, manequim)
+js/bolsas.js          aba Bolsas (drag & drop, look, bolsa)
 js/relatorios.js      aba Relatórios
 js/app.js             abas, carga inicial, status de sincronização
 ```

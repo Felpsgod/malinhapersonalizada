@@ -1,4 +1,4 @@
-// Aba Bolsas: lista de malinhas, manequim que veste as peças arrastadas
+// Aba Bolsas: lista de malinhas, a bolsa que recebe as peças arrastadas
 // e faixa com o estoque disponível.
 
 import { categoria } from './config.js';
@@ -8,7 +8,7 @@ import {
   removerPeca, selecionarBolsa, state, valorDaBolsa,
 } from './store.js';
 import { abrirModalBolsa, confirmar } from './modais.js';
-import { renderManequim } from './mannequin.js';
+import { renderBolsa } from './tote.js';
 import { midiaPeca } from './estoque.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -69,7 +69,7 @@ function renderStrip() {
     return `
       <article class="strip-item${alocada ? ' is-used' : ''}"
                ${alocada ? '' : 'draggable="true"'} data-peca="${p.id}"
-               title="${alocada ? `Em uso por ${esc(alocada.bolsaNome)}` : 'Arraste para o manequim'}">
+               title="${alocada ? `Em uso por ${esc(alocada.bolsaNome)}` : 'Arraste para a bolsa'}">
         <div class="strip-item__media">${midiaPeca(p, 'strip-item__ph')}</div>
         <div class="strip-item__body">
           <div class="strip-item__name">${cat.icon} ${esc(p.nome)}</div>
@@ -98,9 +98,9 @@ export function renderBolsas() {
   $('#ws-obs').textContent = bolsa.obs || '';
 
   const itens = itensDaBolsa(state.bolsaAtiva);
-  $('#mannequin').innerHTML = renderManequim(itens);
-  $('#mannequin-hint').textContent = itens.length
-    ? 'Solte outra peça para completar o look'
+  $('#tote').innerHTML = renderBolsa(itens);
+  $('#tote-hint').textContent = itens.length
+    ? 'Solte outra peça aqui'
     : 'Arraste uma peça até aqui';
   renderLook(itens);
   renderStrip();
