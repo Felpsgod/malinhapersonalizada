@@ -5,7 +5,7 @@ import { categoria } from './config.js';
 import { brl, esc, toast } from './utils.js';
 import {
   adicionarPeca, excluirBolsa, indiceUso, itensDaBolsa, listaBolsas, listaPecas,
-  removerPeca, selecionarBolsa, state, valorDaBolsa,
+  removerPeca, selecionarBolsa, somar, state, totaisDaBolsa,
 } from './store.js';
 import { abrirModalBolsa, confirmar } from './modais.js';
 import { renderBolsa } from './tote.js';
@@ -22,13 +22,16 @@ function renderLista() {
   const bolsas = listaBolsas();
   $('#bolsas-list').innerHTML = bolsas.map((b) => {
     const qtd = itensDaBolsa(b.id).length;
+    const total = totaisDaBolsa(b.id);
     return `
       <button class="bag${b.id === state.bolsaAtiva ? ' is-active' : ''}" data-bolsa="${b.id}">
         <span class="bag__name">${esc(b.nome)}</span>
         <span class="bag__meta">
           <span><strong>${qtd}</strong> ${qtd === 1 ? 'peça' : 'peças'}</span>
           <span>·</span>
-          <span><strong>${brl(valorDaBolsa(b.id))}</strong></span>
+          <span>custo <strong>${brl(total.custo)}</strong></span>
+          <span>·</span>
+          <span>venda <strong>${brl(total.venda)}</strong></span>
         </span>
         ${b.obs ? `<span class="bag__meta">${esc(b.obs)}</span>` : ''}
       </button>`;
@@ -38,8 +41,10 @@ function renderLista() {
 /* ------------------------------- workspace ------------------------------- */
 
 function renderLook(itens) {
+  const total = somar(itens);
   $('#look-count').textContent = `${itens.length} ${itens.length === 1 ? 'peça' : 'peças'}`;
-  $('#look-total').textContent = brl(itens.reduce((s, p) => s + (Number(p.valor) || 0), 0));
+  $('#look-custo').textContent = brl(total.custo);
+  $('#look-venda').textContent = brl(total.venda);
   $('#look-list').innerHTML = itens.map((p) => `
     <li class="look-item">
       ${p.foto
@@ -49,7 +54,10 @@ function renderLook(itens) {
         <div class="look-item__name">${esc(p.nome)}</div>
         <div class="look-item__cat">${p.cat.icon} ${esc(p.cat.nome)}</div>
       </div>
-      <div class="look-item__price">${brl(p.valor)}</div>
+      <div class="look-item__price">
+        ${brl(p.venda)}
+        <span class="look-item__cost">custo ${brl(p.custo)}</span>
+      </div>
       <button class="look-item__rm" data-remover="${p.id}" title="Tirar do look" aria-label="Tirar ${esc(p.nome)} do look">&times;</button>
     </li>`).join('');
 }
@@ -73,7 +81,7 @@ function renderStrip() {
         <div class="strip-item__media">${midiaPeca(p, 'strip-item__ph')}</div>
         <div class="strip-item__body">
           <div class="strip-item__name">${cat.icon} ${esc(p.nome)}</div>
-          <div class="strip-item__price">${alocada ? `Com ${esc(alocada.bolsaNome)}` : brl(p.valor)}</div>
+          <div class="strip-item__price">${alocada ? `Com ${esc(alocada.bolsaNome)}` : brl(p.venda)}</div>
         </div>
       </article>`;
   }).join('');

@@ -103,8 +103,16 @@ button { cursor: pointer; }
 .gate__card .form { margin-top: var(--s7); text-align: left; }
 .gate__card .field + .field { margin-top: var(--s4); }
 .gate__card .btn { width: 100%; margin-top: var(--s5); }
-.gate__card .err:empty { display: none; }
-.gate__card .err { margin: var(--s4) 0 0; }
+.gate__card .err:empty, .gate__card .ok-msg:empty { display: none; }
+.gate__card .err, .gate__card .ok-msg { margin: var(--s4) 0 0; }
+.ok-msg { color: var(--green-deep); font-size: 14px; margin: 0; }
+.link-quiet {
+  display: block; width: 100%; margin-top: var(--s4);
+  border: 0; background: transparent; color: var(--blue);
+  font-size: 14px; font-weight: 600; letter-spacing: -0.14px; padding: 6px;
+  border-radius: var(--r-link);
+}
+.link-quiet:hover { background: rgba(0,113,227,.07); }
 .lede--sm { font-size: 15px; margin: 0; }
 
 /* ---------------------------------- Nav ---------------------------------- */
@@ -238,6 +246,11 @@ button { cursor: pointer; }
 .stat--green .stat__value { color: var(--green-deep); }
 .stat--orange .stat__value { color: var(--orange); }
 .stat--violet .stat__value { color: var(--violet); }
+.stat__value--par { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; font-size: 20px; }
+.stat__value--par span { font-size: 28px; color: var(--obsidian); }
+.stat--orange .stat__value--par span { color: var(--orange); }
+.stat--green .stat__value--par span { color: var(--green-deep); }
+.stat--orange .stat__value--par, .stat--green .stat__value--par { color: var(--iron); }
 
 /* ---------------------------------- Grid estoque ------------------------- */
 .grid {
@@ -279,6 +292,7 @@ button { cursor: pointer; }
 .piece__body { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s1); flex: 1; }
 .piece__name { font-size: 17px; font-weight: 600; letter-spacing: -0.272px; }
 .piece__price { font-size: 14px; color: var(--slate); letter-spacing: -0.14px; }
+.piece__cost { font-size: 12px; color: var(--iron); letter-spacing: -0.036px; }
 .piece__acts {
   display: flex; gap: var(--s2); padding: 0 var(--s5) var(--s5); margin-top: auto;
 }
@@ -390,7 +404,11 @@ button { cursor: pointer; }
 .look-item__name { font-size: 14px; font-weight: 600; letter-spacing: -0.14px;
                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .look-item__cat { font-size: 12px; color: var(--iron); }
-.look-item__price { font-size: 14px; font-weight: 600; color: var(--charcoal); white-space: nowrap; }
+.look-item__price {
+  font-size: 14px; font-weight: 600; color: var(--charcoal);
+  white-space: nowrap; text-align: right;
+}
+.look-item__cost { display: block; font-size: 11px; font-weight: 400; color: var(--iron); }
 .look-item__rm {
   border: 0; background: transparent; color: var(--iron); font-size: 20px;
   width: 28px; height: 28px; border-radius: 50%; flex: none; line-height: 1;
@@ -401,7 +419,9 @@ button { cursor: pointer; }
   border-top: 1px solid var(--fog); margin-top: var(--s5); padding-top: var(--s4);
   font-size: 14px; color: var(--slate);
 }
-.look__total strong { font-size: 28px; font-weight: 600; letter-spacing: -0.252px; color: var(--obsidian); }
+.look__total strong { font-size: 20px; font-weight: 600; letter-spacing: -0.18px; color: var(--charcoal); }
+.look__total--venda { border-top: 0; margin-top: 0; padding-top: var(--s2); }
+.look__total--venda strong { font-size: 28px; letter-spacing: -0.252px; color: var(--obsidian); }
 
 /* Faixa de estoque */
 .workspace__stock { border-top: 1px solid var(--fog); padding-top: var(--s6); }

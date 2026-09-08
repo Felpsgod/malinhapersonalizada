@@ -1,9 +1,11 @@
 // Ponto de entrada: portão de acesso, abas, carga inicial e ligação dos
 // módulos de tela.
 
-import { entrar, onAuth, restaurar, sair, usuario } from './auth.js';
+import {
+  SENHA_MINIMA, entrar, esqueciSenha, onAuth, restaurar, sair, trocarSenha, usuario,
+} from './auth.js';
 import { onNetwork } from './db.js';
-import { carregar, limpar, onChange } from './store.js';
+import { carregar, limpar, marcarSenhaTrocada, onChange, precisaTrocarSenha } from './store.js';
 import { toast } from './utils.js';
 import { iniciarModais } from './modais.js';
 import { iniciarEstoque, renderEstoque } from './estoque.js';
@@ -67,37 +69,65 @@ function renderTudo() {
   renderRelatorios();
 }
 
-async function carregarAcervo() {
+async function carregarAcervo(user) {
   try {
-    await carregar();
+    await carregar(user.uid);
+    return true;
   } catch (err) {
     toast(`Não consegui carregar os dados: ${err.message}`, 'err');
     renderTudo();
+    return false;
   }
 }
 
 /* ----------------------------- portão de acesso -------------------------- */
 
-/** Mostra o app ou a tela de login conforme houver sessão. */
-function refletirSessao(user) {
-  document.body.classList.toggle('is-locked', !user);
-  $('#gate').hidden = !!user;
-  $('#conta-email').textContent = user?.email || '';
-  if (user) $('#form-login').reset();
+/**
+ * Três estados: sem sessão (login), sessão com senha provisória (troca
+ * obrigatória) e liberado. Nos dois primeiros o app segue fora da tela — nada
+ * do acervo aparece antes da senha ser dela mesma.
+ */
+function mostrarPortao(cartao) {
+  document.body.classList.add('is-locked');
+  $('#gate').hidden = false;
+  $('#card-login').hidden = cartao !== 'login';
+  $('#card-senha').hidden = cartao !== 'senha';
+  $(cartao === 'senha' ? '#senha-nova' : '#login-email').focus();
 }
 
-function iniciarPortao() {
-  onAuth(refletirSessao);
+function abrirApp() {
+  document.body.classList.remove('is-locked');
+  $('#gate').hidden = true;
+  $('#form-login').reset();
+  $('#form-senha').reset();
+}
 
+/** Chamado depois de todo login e da sessão restaurada. */
+async function aposEntrar(user) {
+  $('#conta-email').textContent = user.email || '';
+  if (!(await carregarAcervo(user))) { mostrarPortao('login'); return; }
+  if (precisaTrocarSenha()) { mostrarPortao('senha'); return; }
+  abrirApp();
+}
+
+function encerrar(aviso) {
+  sair();
+  limpar();
+  mostrarPortao('login');
+  if (aviso) toast(aviso, 'ok');
+}
+
+function ligarLogin() {
   $('#form-login').addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = $('#login-err');
     const btn = $('#login-submit');
     err.textContent = '';
+    $('#login-ok').textContent = '';
     btn.disabled = true;
     try {
-      await entrar($('#login-email').value, $('#login-senha').value);
-      await carregarAcervo();
+      const user = await entrar($('#login-email').value, $('#login-senha').value);
+      await aposEntrar(user);
     } catch (e2) {
       err.textContent = e2.message;
     } finally {
@@ -105,11 +135,60 @@ function iniciarPortao() {
     }
   });
 
-  $('#btn-sair').addEventListener('click', () => {
-    sair();
-    limpar();
-    toast('Você saiu.', 'ok');
+  $('#btn-esqueci').addEventListener('click', async () => {
+    const err = $('#login-err');
+    const ok = $('#login-ok');
+    const email = $('#login-email').value.trim();
+    err.textContent = '';
+    ok.textContent = '';
+    if (!email) { err.textContent = 'Escreva seu e-mail acima primeiro.'; return; }
+    try {
+      await esqueciSenha(email);
+      ok.textContent = `Enviamos um link para ${email}. Abra o e-mail para criar uma senha nova.`;
+    } catch (e2) {
+      err.textContent = e2.message;
+    }
   });
+}
+
+function ligarTrocaDeSenha() {
+  $('#form-senha').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('#senha-err');
+    const btn = $('#senha-submit');
+    const nova = $('#senha-nova').value;
+    err.textContent = '';
+    if (nova.length < SENHA_MINIMA) {
+      err.textContent = `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`;
+      return;
+    }
+    if (nova !== $('#senha-repete').value) {
+      err.textContent = 'As duas senhas não são iguais.';
+      return;
+    }
+    btn.disabled = true;
+    try {
+      await trocarSenha(nova);
+      await marcarSenhaTrocada(usuario().uid);
+      abrirApp();
+      toast('Senha alterada.', 'ok');
+    } catch (e2) {
+      err.textContent = e2.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('#btn-cancelar-senha').addEventListener('click', () => encerrar());
+}
+
+function iniciarPortao() {
+  // A sessão pode cair sozinha (refresh token revogado); quando isso acontece
+  // a tela de login volta sem ninguém precisar clicar em Sair.
+  onAuth((user) => { if (!user) mostrarPortao('login'); });
+  ligarLogin();
+  ligarTrocaDeSenha();
+  $('#btn-sair').addEventListener('click', () => encerrar('Você saiu.'));
 }
 
 /* --------------------------------- início -------------------------------- */
@@ -131,7 +210,8 @@ async function principal() {
   } catch {
     // Sem rede na abertura: cai na tela de login, que tenta de novo.
   }
-  if (usuario()) await carregarAcervo();
+  const user = usuario();
+  if (user) await aposEntrar(user);
 }
 
 principal();

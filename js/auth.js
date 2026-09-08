@@ -8,6 +8,11 @@ import { FIREBASE_API_KEY } from './config.js';
 
 const URL_ENTRAR = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
 const URL_RENOVAR = 'https://securetoken.googleapis.com/v1/token';
+const URL_EMAIL = 'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode';
+const URL_ATUALIZAR = 'https://identitytoolkit.googleapis.com/v1/accounts:update';
+
+/** Mínimo que o Firebase aceita. Abaixo disso ele recusa com WEAK_PASSWORD. */
+export const SENHA_MINIMA = 6;
 const CHAVE = 'malinha.sessao';
 
 // Renova um pouco antes de expirar: sem essa folga, uma requisição disparada
@@ -72,11 +77,17 @@ const RECADOS = {
   USER_DISABLED: 'Este acesso foi desativado.',
   TOO_MANY_ATTEMPTS_TRY_LATER: 'Muitas tentativas. Aguarde alguns minutos.',
   MISSING_PASSWORD: 'Informe a senha.',
+  MISSING_EMAIL: 'Informe o e-mail.',
+  WEAK_PASSWORD: `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`,
+  CREDENTIAL_TOO_OLD_LOGIN_AGAIN: 'Sessão antiga demais para trocar a senha. Entre de novo.',
+  TOKEN_EXPIRED: 'Sessão expirada. Entre de novo.',
+  INVALID_ID_TOKEN: 'Sessão inválida. Entre de novo.',
+  RESET_PASSWORD_EXCEED_LIMIT: 'Muitos pedidos de redefinição. Aguarde alguns minutos.',
 };
 
 function traduzir(codigo) {
   const chave = String(codigo || '').split(' : ')[0].trim();
-  return RECADOS[chave] || `Não consegui entrar (${chave || 'erro desconhecido'}).`;
+  return RECADOS[chave] || `Não deu certo (${chave || 'erro desconhecido'}).`;
 }
 
 /* --------------------------------- login --------------------------------- */
@@ -102,6 +113,48 @@ export async function entrar(email, senha) {
 
 export function sair() {
   guardar(null);
+}
+
+/* ---------------------------- recuperar a senha -------------------------- */
+
+/**
+ * Pede ao Firebase o e-mail de redefinição. Ele envia um *link*, não uma senha
+ * — não existe API que devolva ou envie senha em texto, e o site não tem
+ * servidor para gerar uma. Pelo link a própria pessoa escolhe a nova senha.
+ */
+export async function esqueciSenha(email) {
+  if (semChave()) {
+    throw new Error('Falta a FIREBASE_API_KEY em js/config.js — veja o README.');
+  }
+  const res = await fetch(`${URL_EMAIL}?key=${FIREBASE_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestType: 'PASSWORD_RESET', email: email.trim() }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(traduzir(json.error?.message));
+}
+
+/* ----------------------------- trocar a senha ---------------------------- */
+
+/**
+ * Troca a senha de quem está logado. O Firebase invalida os tokens antigos e
+ * devolve um par novo, que guardamos para a sessão seguir sem novo login.
+ */
+export async function trocarSenha(nova) {
+  const atual = await token();
+  if (!atual) throw new Error('Sessão expirada. Entre de novo.');
+
+  const res = await fetch(`${URL_ATUALIZAR}?key=${FIREBASE_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken: atual, password: nova, returnSecureToken: true }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(traduzir(json.error?.message));
+  // A resposta traz tokens novos; sem isso as chamadas seguintes levariam um
+  // token que o Firebase acabou de invalidar.
+  if (json.idToken) guardar(daResposta(json));
 }
 
 /* ------------------------------- token ativo ----------------------------- */

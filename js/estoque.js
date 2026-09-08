@@ -2,7 +2,7 @@
 
 import { CATEGORIAS, categoria } from './config.js';
 import { brl, debounce, esc, toast } from './utils.js';
-import { excluirPeca, indiceUso, listaPecas, state } from './store.js';
+import { excluirPeca, indiceUso, listaPecas, somar, state } from './store.js';
 import { abrirModalPeca, confirmar } from './modais.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -30,7 +30,7 @@ function aplicarFiltros(pecas, uso) {
 function renderStats(pecas, uso) {
   const emUso = pecas.filter((p) => uso[p.id]);
   const livres = pecas.filter((p) => !uso[p.id]);
-  const soma = (lista) => lista.reduce((s, p) => s + (Number(p.valor) || 0), 0);
+  const total = somar(pecas);
 
   $('#estoque-stats').innerHTML = `
     <div class="stat"><p class="stat__label">Peças cadastradas</p>
@@ -39,8 +39,10 @@ function renderStats(pecas, uso) {
       <div class="stat__value">${livres.length}</div></div>
     <div class="stat stat--orange"><p class="stat__label">Em uso nas bolsas</p>
       <div class="stat__value">${emUso.length}</div></div>
-    <div class="stat stat--blue"><p class="stat__label">Valor total do acervo</p>
-      <div class="stat__value">${brl(soma(pecas))}</div></div>`;
+    <div class="stat stat--violet"><p class="stat__label">Custo total do acervo</p>
+      <div class="stat__value">${brl(total.custo)}</div></div>
+    <div class="stat stat--blue"><p class="stat__label">Venda total do acervo</p>
+      <div class="stat__value">${brl(total.venda)}</div></div>`;
 }
 
 function cardPeca(peca, uso) {
@@ -55,7 +57,8 @@ function cardPeca(peca, uso) {
       </div>
       <div class="piece__body">
         <div class="piece__name">${esc(peca.nome)}</div>
-        <div class="piece__price">${brl(peca.valor)}</div>
+        <div class="piece__price">${brl(peca.venda)}</div>
+        <div class="piece__cost">custo ${brl(peca.custo)}</div>
       </div>
       <div class="piece__acts">
         <button class="btn btn--neutral btn--sm" data-editar="${peca.id}">Editar</button>

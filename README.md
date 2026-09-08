@@ -10,9 +10,9 @@ dependências, sem npm.** Basta publicar a pasta.
 
 | Aba | O que faz |
 | --- | --- |
-| **Estoque** | Cadastro de peças com foto, nome, valor e categoria. Busca, filtros por categoria e por situação (livre / em uso), editar e excluir. |
-| **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para dentro da bolsa (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome e valor de cada peça ao lado e o total embaixo. Editar e excluir bolsa. |
-| **Relatórios** | O que está em uso e com quem, o que continua livre, valor em circulação x valor parado, resumo por bolsa e exportação em CSV. |
+| **Estoque** | Cadastro de peças com foto, nome, **custo**, **valor de venda** e categoria. Busca, filtros por categoria e por situação (livre / em uso), editar e excluir. |
+| **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para dentro da bolsa (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome, custo e venda de cada peça ao lado e os dois totais embaixo. Editar e excluir bolsa. |
+| **Relatórios** | O que está em uso e com quem, o que continua livre, custo e venda em circulação x parados, resumo por bolsa e exportação em CSV com linha de total. |
 
 **Regra central:** uma peça só pode estar em uma bolsa por vez. É isso que torna
 o relatório de "em uso x livre" confiável — a peça alocada aparece marcada no
@@ -39,11 +39,15 @@ Estrutura:
   "pecas": {
     "-Nxxxx": {
       "nome": "Blusa de linho off-white",
-      "valor": 189.9,
+      "custo": 89.9,
+      "venda": 189.9,
       "categoria": "blusa",
       "foto": "data:image/jpeg;base64,...",  // reduzida para 900px / qualidade 0.72
       "criadoEm": "2026-09-02T12:00:00.000Z"
     }
+  },
+  "perfis": {
+    "UID_DA_PESSOA": { "senhaTrocada": true }  // já trocou a senha provisória
   },
   "bolsas": {
     "-Nyyyy": {
@@ -98,6 +102,28 @@ banco para todo mundo, inclusive para você, e a única saída é reabrir as reg
 pelo console.
 
 Para dar acesso a outra pessoa, repita os passos 2 e 3 — as regras não mudam.
+
+### Senha provisória e primeira entrada
+
+O usuário criado no passo 2 nasce com uma senha provisória, escolhida por quem
+cadastrou. Na primeira entrada o app não abre direto: pede a troca por uma senha
+que só a pessoa conheça, e só depois libera o estoque. O que marca isso é
+`/perfis/{uid}/senhaTrocada` — sem esse `true`, a troca é pedida de novo.
+
+Vale para todo mundo, inclusive para quem já usava o app antes desta versão: a
+primeira entrada depois da atualização pede uma senha nova uma única vez.
+
+### Esqueci minha senha
+
+O botão na tela de login dispara o e-mail de redefinição do Firebase. Ele manda
+um **link**, não uma senha: pelo link a própria pessoa escolhe a nova senha, e
+ninguém — nem o administrador — chega a conhecê-la.
+
+Enviar uma senha pronta por e-mail exigiria um servidor para gerá-la e disparar
+o e-mail, o que este site não tem (é estático), e deixaria a senha em texto na
+caixa de entrada. O link resolve a mesma necessidade sem esses dois problemas.
+Para que os e-mails saiam com o nome certo, ajuste o remetente e o texto em
+Authentication → Templates.
 
 ## Rodar localmente
 

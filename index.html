@@ -12,7 +12,7 @@
 
 <!-- ===================== PORTÃO DE ACESSO ===================== -->
 <div class="gate" id="gate">
-  <div class="gate__card">
+  <div class="gate__card" id="card-login">
     <span class="nav__mark" aria-hidden="true"></span>
     <h1 class="h-sm">Malinha Personalizada</h1>
     <p class="lede lede--sm">Entre para ver o estoque e as malinhas.</p>
@@ -26,7 +26,31 @@
         <input id="login-senha" type="password" autocomplete="current-password" required>
       </div>
       <p class="err" id="login-err"></p>
+      <p class="ok-msg" id="login-ok"></p>
       <button type="submit" class="btn btn--primary" id="login-submit">Entrar</button>
+      <button type="button" class="link-quiet" id="btn-esqueci">Esqueci minha senha</button>
+    </form>
+  </div>
+
+  <div class="gate__card" id="card-senha" hidden>
+    <span class="nav__mark" aria-hidden="true"></span>
+    <h1 class="h-sm">Crie sua senha</h1>
+    <p class="lede lede--sm" id="senha-motivo">
+      Este é o primeiro acesso com a senha provisória. Escolha uma senha só sua
+      para continuar.
+    </p>
+    <form class="form" id="form-senha">
+      <div class="field">
+        <label for="senha-nova">Nova senha</label>
+        <input id="senha-nova" type="password" autocomplete="new-password" required minlength="6">
+      </div>
+      <div class="field">
+        <label for="senha-repete">Repita a nova senha</label>
+        <input id="senha-repete" type="password" autocomplete="new-password" required minlength="6">
+      </div>
+      <p class="err" id="senha-err"></p>
+      <button type="submit" class="btn btn--primary" id="senha-submit">Salvar e entrar</button>
+      <button type="button" class="link-quiet" id="btn-cancelar-senha">Sair</button>
     </form>
   </div>
 </div>
@@ -59,7 +83,7 @@
     <div class="section-head">
       <div>
         <h1 class="h-lg">Estoque<span class="accent">.</span></h1>
-        <p class="lede">Cadastre cada peça com foto, nome e valor. Tudo fica salvo no Firebase.</p>
+        <p class="lede">Cadastre cada peça com foto, nome, custo e valor de venda.</p>
       </div>
       <button class="btn btn--primary" id="btn-nova-peca">Adicionar peça</button>
     </div>
@@ -134,8 +158,12 @@
               </div>
               <ul class="look__list" id="look-list"></ul>
               <div class="look__total">
-                <span>Valor total do look</span>
-                <strong id="look-total">R$ 0,00</strong>
+                <span>Custo total</span>
+                <strong id="look-custo">R$ 0,00</strong>
+              </div>
+              <div class="look__total look__total--venda">
+                <span>Venda total</span>
+                <strong id="look-venda">R$ 0,00</strong>
               </div>
             </div>
           </div>
@@ -174,7 +202,7 @@
         </div>
         <div class="table-wrap">
           <table class="table" id="tbl-uso">
-            <thead><tr><th>Peça</th><th>Categoria</th><th>Bolsa</th><th class="ta-r">Valor</th></tr></thead>
+            <thead><tr><th>Peça</th><th>Categoria</th><th>Bolsa</th><th class="ta-r">Custo</th><th class="ta-r">Venda</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -186,7 +214,7 @@
         </div>
         <div class="table-wrap">
           <table class="table" id="tbl-livre">
-            <thead><tr><th>Peça</th><th>Categoria</th><th class="ta-r">Valor</th></tr></thead>
+            <thead><tr><th>Peça</th><th>Categoria</th><th class="ta-r">Custo</th><th class="ta-r">Venda</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -197,7 +225,7 @@
       <div class="card__head"><h3 class="h-xs">Resumo por bolsa</h3></div>
       <div class="table-wrap">
         <table class="table" id="tbl-bolsas">
-          <thead><tr><th>Pessoa</th><th class="ta-r">Peças</th><th class="ta-r">Valor do look</th><th>Criada em</th></tr></thead>
+          <thead><tr><th>Pessoa</th><th class="ta-r">Peças</th><th class="ta-r">Custo</th><th class="ta-r">Venda</th><th>Criada em</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -233,9 +261,15 @@
       </div>
       <div class="form__row form__row--2">
         <div class="field">
-          <label for="peca-valor">Valor (R$)</label>
-          <input id="peca-valor" inputmode="decimal" required placeholder="0,00">
+          <label for="peca-custo">Custo (R$)</label>
+          <input id="peca-custo" inputmode="decimal" required placeholder="0,00">
         </div>
+        <div class="field">
+          <label for="peca-venda">Venda (R$)</label>
+          <input id="peca-venda" inputmode="decimal" required placeholder="0,00">
+        </div>
+      </div>
+      <div class="form__row">
         <div class="field">
           <label for="peca-categoria">Categoria</label>
           <select id="peca-categoria"></select>

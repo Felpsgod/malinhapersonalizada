@@ -1,8 +1,12 @@
 // Estado da aplicação + operações que persistem no Firebase.
 //
 // Modelo no Realtime Database:
-//   /pecas/{id}  = { nome, valor, categoria, foto, criadoEm }
+//   /pecas/{id}  = { nome, custo, venda, categoria, foto, criadoEm }
 //   /bolsas/{id} = { nome, obs, criadoEm, itens: { pecaId: true } }
+//   /perfis/{uid} = { senhaTrocada }
+//
+// Peças antigas guardavam um único `valor`. Ele é lido como preço de venda e
+// sai do registro na primeira edição — ver `normalizarPeca`.
 //
 // Regra de negócio: uma peça só pode estar em uma bolsa por vez — é isso que
 // torna os relatórios de "em uso" x "livre" confiáveis.
@@ -13,6 +17,7 @@ import { categoria } from './config.js';
 export const state = {
   pecas: {},
   bolsas: {},
+  perfil: {},
   bolsaAtiva: null,
   carregado: false,
 };
@@ -30,10 +35,23 @@ function emit() {
 
 /* ------------------------------- carga ---------------------------------- */
 
-export async function carregar() {
+/**
+ * Deixa toda peça com `custo` e `venda` numéricos, inclusive as antigas, que
+ * tinham só `valor`. Normalizar aqui evita espalhar `?? valor` por toda tela.
+ */
+function normalizarPeca(peca) {
+  peca.custo = Number(peca.custo) || 0;
+  peca.venda = Number(peca.venda ?? peca.valor) || 0;
+  delete peca.valor;
+  return peca;
+}
+
+export async function carregar(uid) {
   const dados = (await db.get('')) || {};
   state.pecas = dados.pecas || {};
   state.bolsas = dados.bolsas || {};
+  state.perfil = (uid && dados.perfis?.[uid]) || {};
+  Object.values(state.pecas).forEach(normalizarPeca);
   // Normaliza: garante que toda bolsa tenha `itens`.
   Object.values(state.bolsas).forEach((b) => { b.itens = b.itens || {}; });
   state.carregado = true;
@@ -46,6 +64,7 @@ export async function carregar() {
 export function limpar() {
   state.pecas = {};
   state.bolsas = {};
+  state.perfil = {};
   state.bolsaAtiva = null;
   state.carregado = false;
   emit();
@@ -86,16 +105,42 @@ export function itensDaBolsa(bolsaId) {
     .sort((a, b) => a.cat.z - b.cat.z);
 }
 
-export function valorDaBolsa(bolsaId) {
-  return itensDaBolsa(bolsaId).reduce((soma, p) => soma + (Number(p.valor) || 0), 0);
+/** Soma de custo e de venda das peças de uma bolsa. */
+export function totaisDaBolsa(bolsaId) {
+  return somar(itensDaBolsa(bolsaId));
+}
+
+/** Soma custo e venda de uma lista de peças. */
+export function somar(pecas) {
+  return pecas.reduce(
+    (t, p) => ({ custo: t.custo + (Number(p.custo) || 0), venda: t.venda + (Number(p.venda) || 0) }),
+    { custo: 0, venda: 0 },
+  );
+}
+
+/* -------------------------------- perfil --------------------------------- */
+
+/**
+ * Quem nunca trocou a senha ainda está com a senha provisória que o
+ * administrador cadastrou — o app pede a troca antes de abrir.
+ */
+export function precisaTrocarSenha() {
+  return state.perfil?.senhaTrocada !== true;
+}
+
+export async function marcarSenhaTrocada(uid) {
+  await db.put(`perfis/${uid}/senhaTrocada`, true);
+  state.perfil = { ...state.perfil, senhaTrocada: true };
+  emit();
 }
 
 /* ------------------------------- peças ----------------------------------- */
 
-export async function criarPeca({ nome, valor, categoria: cat, foto }) {
+export async function criarPeca({ nome, custo, venda, categoria: cat, foto }) {
   const peca = {
     nome: nome.trim(),
-    valor: Number(valor) || 0,
+    custo: Number(custo) || 0,
+    venda: Number(venda) || 0,
     categoria: cat,
     foto: foto || '',
     criadoEm: new Date().toISOString(),
@@ -106,15 +151,19 @@ export async function criarPeca({ nome, valor, categoria: cat, foto }) {
   return id;
 }
 
-export async function atualizarPeca(id, { nome, valor, categoria: cat, foto }) {
+export async function atualizarPeca(id, { nome, custo, venda, categoria: cat, foto }) {
   const patch = {
     nome: nome.trim(),
-    valor: Number(valor) || 0,
+    custo: Number(custo) || 0,
+    venda: Number(venda) || 0,
     categoria: cat,
     foto: foto || '',
+    // `null` apaga o campo: peça antiga migra de `valor` para custo/venda ao
+    // ser editada, em vez de ficar com os dois esquemas no mesmo registro.
+    valor: null,
   };
   await db.patch(`pecas/${id}`, patch);
-  state.pecas[id] = { ...state.pecas[id], ...patch };
+  state.pecas[id] = normalizarPeca({ ...state.pecas[id], ...patch });
   emit();
 }
 

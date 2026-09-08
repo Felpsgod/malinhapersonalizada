@@ -30,6 +30,9 @@ export function fechar() {
 let pecaEditando = null;
 let fotoAtual = '';
 
+const dinheiro = (n) => Number(n || 0)
+  .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 function preencherCategorias() {
   const sel = $('#peca-categoria');
   if (sel.options.length) return;
@@ -61,9 +64,8 @@ export function abrirModalPeca(peca = null) {
   $('#modal-peca-title').textContent = peca ? 'Editar peça' : 'Adicionar peça';
   $('#peca-submit').textContent = peca ? 'Salvar alterações' : 'Salvar peça';
   $('#peca-nome').value = peca?.nome || '';
-  $('#peca-valor').value = peca
-    ? Number(peca.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    : '';
+  $('#peca-custo').value = peca ? dinheiro(peca.custo) : '';
+  $('#peca-venda').value = peca ? dinheiro(peca.venda) : '';
   $('#peca-categoria').value = peca ? categoria(peca.categoria).id : 'blusa';
   $('#peca-err').textContent = '';
   $('#peca-foto').value = '';
@@ -99,25 +101,27 @@ function ligarModalPeca() {
 
   // Ao sair do campo, normaliza o valor para o formato pt-BR: o que aparece
   // na tela é exatamente o que será salvo.
-  $('#peca-valor').addEventListener('blur', (e) => {
-    const n = parseValor(e.target.value);
-    if (Number.isFinite(n) && n >= 0) {
-      e.target.value = n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+  ['#peca-custo', '#peca-venda'].forEach((sel) => {
+    $(sel).addEventListener('blur', (e) => {
+      const n = parseValor(e.target.value);
+      if (Number.isFinite(n) && n >= 0) e.target.value = dinheiro(n);
+    });
   });
 
   $('#form-peca').addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = $('#peca-err');
     const nome = $('#peca-nome').value.trim();
-    const valor = parseValor($('#peca-valor').value);
+    const custo = parseValor($('#peca-custo').value);
+    const venda = parseValor($('#peca-venda').value);
     if (!nome) { err.textContent = 'Informe o nome da peça.'; return; }
-    if (!Number.isFinite(valor) || valor < 0) { err.textContent = 'Informe um valor válido.'; return; }
+    if (!Number.isFinite(custo) || custo < 0) { err.textContent = 'Informe um custo válido.'; return; }
+    if (!Number.isFinite(venda) || venda < 0) { err.textContent = 'Informe um valor de venda válido.'; return; }
 
     const btn = $('#peca-submit');
     btn.disabled = true;
     err.textContent = '';
-    const dados = { nome, valor, categoria: $('#peca-categoria').value, foto: fotoAtual };
+    const dados = { nome, custo, venda, categoria: $('#peca-categoria').value, foto: fotoAtual };
     try {
       if (pecaEditando) {
         await atualizarPeca(pecaEditando.id, dados);

@@ -7,15 +7,25 @@
       ".write": false
     },
 
+    "perfis": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && root.child('acesso').child($uid).val() === true",
+        "senhaTrocada": { ".validate": "newData.isBoolean()" },
+        "$outro": { ".validate": false }
+      }
+    },
+
     "pecas": {
       ".write": "auth != null && root.child('acesso').child(auth.uid).val() === true",
       "$peca": {
-        ".validate": "newData.hasChildren(['nome', 'valor', 'categoria'])",
+        ".validate": "newData.hasChildren(['nome', 'categoria'])",
         "nome":     { ".validate": "newData.isString() && newData.val().length <= 120" },
-        "valor":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "custo":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "venda":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
         "categoria":{ ".validate": "newData.isString()" },
         "foto":     { ".validate": "newData.isString()" },
         "criadoEm": { ".validate": "newData.isString()" },
+        "valor":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
         "$outro":   { ".validate": false }
       }
     },
