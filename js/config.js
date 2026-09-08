@@ -7,7 +7,7 @@ export const FIREBASE_URL =
 // Ela NÃO é um segredo: identifica o projeto e vai no código do navegador de
 // qualquer jeito. Quem protege os dados são as regras do Realtime Database,
 // que só liberam leitura e escrita para UIDs listados em /acesso.
-export const FIREBASE_API_KEY = 'COLE_AQUI_A_WEB_API_KEY';
+export const FIREBASE_API_KEY = 'AIzaSyCZkje4-o3qhsTpd52AQdg7dpXUG1sqLAE';
 
 // `z` é a ordem de vestir: define a sequência em que as peças aparecem no look
 // e na bolsa — calça (1) < blusa (2) < vestido (3) < casaco (4).
