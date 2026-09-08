@@ -29,6 +29,9 @@ export function fechar() {
 
 let pecaEditando = null;
 let fotoAtual = '';
+// 'vazio' | 'carregando' | 'pronta' | 'erro' — sem isso dá para salvar no meio
+// do processamento da imagem e gravar a peça com a foto em branco.
+let estadoFoto = 'vazio';
 
 const dinheiro = (n) => Number(n || 0)
   .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -70,15 +73,33 @@ export function abrirModalPeca(peca = null) {
   $('#peca-err').textContent = '';
   $('#peca-foto').value = '';
   setPreview(peca?.foto || '');
+  marcarEstado(peca?.foto ? 'pronta' : 'vazio');
   abrir($('#modal-peca'));
 }
 
-async function carregarArquivo(file) {
+function marcarEstado(estado) {
+  estadoFoto = estado;
+  $('#peca-submit').disabled = estado === 'carregando';
+  if (estado === 'carregando') {
+    $('.dropfile__text strong', $('#dropfile')).textContent = 'Processando foto…';
+  }
+}
+
+async function carregarArquivo(file, input) {
   if (!file) return;
+  $('#peca-err').textContent = '';
+  marcarEstado('carregando');
   try {
     setPreview(await comprimirImagem(file));
+    marcarEstado('pronta');
   } catch (err) {
+    setPreview('');
     $('#peca-err').textContent = err.message;
+    marcarEstado('erro');
+  } finally {
+    // Zera o input: sem isso, escolher o MESMO arquivo de novo não dispara
+    // `change`, e a segunda tentativa morre em silêncio.
+    if (input) input.value = '';
   }
 }
 
@@ -86,8 +107,11 @@ function ligarModalPeca() {
   const drop = $('#dropfile');
   const input = $('#peca-foto');
 
-  drop.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => carregarArquivo(input.files[0]));
+  // O input vive dentro do <label>, então clicar já abre o seletor por conta do
+  // navegador. Um `drop.onclick -> input.click()` por cima disso fazia o clique
+  // chegar duas vezes no input (e três chamadas de click()), e a segunda
+  // ativação cancelava a escolha da primeira — a foto sumia sem aviso.
+  input.addEventListener('change', () => carregarArquivo(input.files[0], input));
 
   ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => {
     e.preventDefault();
@@ -97,7 +121,7 @@ function ligarModalPeca() {
     e.preventDefault();
     drop.classList.remove('is-over');
   }));
-  drop.addEventListener('drop', (e) => carregarArquivo(e.dataTransfer.files[0]));
+  drop.addEventListener('drop', (e) => carregarArquivo(e.dataTransfer.files[0], input));
 
   // Ao sair do campo, normaliza o valor para o formato pt-BR: o que aparece
   // na tela é exatamente o que será salvo.
@@ -117,6 +141,17 @@ function ligarModalPeca() {
     if (!nome) { err.textContent = 'Informe o nome da peça.'; return; }
     if (!Number.isFinite(custo) || custo < 0) { err.textContent = 'Informe um custo válido.'; return; }
     if (!Number.isFinite(venda) || venda < 0) { err.textContent = 'Informe um valor de venda válido.'; return; }
+    if (estadoFoto === 'carregando') {
+      err.textContent = 'A foto ainda está sendo processada. Aguarde um instante.';
+      return;
+    }
+    if (estadoFoto === 'erro') {
+      // Primeiro clique avisa; o segundo grava sem foto, se for mesmo a intenção.
+      estadoFoto = 'vazio';
+      err.textContent = 'A foto não carregou. Escolha outra imagem, ou clique em '
+        + 'Salvar de novo para gravar a peça sem foto.';
+      return;
+    }
 
     const btn = $('#peca-submit');
     btn.disabled = true;

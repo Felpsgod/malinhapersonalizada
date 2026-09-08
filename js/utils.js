@@ -54,7 +54,12 @@ export function comprimirImagem(file) {
     reader.onerror = () => reject(new Error('Não consegui ler o arquivo.'));
     reader.onload = () => {
       const img = new Image();
-      img.onerror = () => reject(new Error('Imagem inválida ou corrompida.'));
+      // HEIC é o caso comum: é o padrão da câmera do iPhone e o navegador não
+      // decodifica, então o erro precisa dizer o que fazer.
+      img.onerror = () => reject(new Error(
+        'Não consegui abrir esta imagem. Formatos como HEIC (foto de iPhone) não '
+        + 'são aceitos — envie em JPEG ou PNG.',
+      ));
       img.onload = () => {
         const escala = Math.min(1, FOTO_MAX_LADO / Math.max(img.width, img.height));
         const w = Math.max(1, Math.round(img.width * escala));
