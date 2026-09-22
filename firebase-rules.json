@@ -23,6 +23,7 @@
         "custo":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
         "venda":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
         "categoria":{ ".validate": "newData.isString()" },
+        "tamanho":  { ".validate": "newData.isString() && newData.val().length <= 20" },
         "foto":     { ".validate": "newData.isString()" },
         "criadoEm": { ".validate": "newData.isString()" },
         "valor":    { ".validate": "newData.isNumber() && newData.val() >= 0" },

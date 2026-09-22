@@ -1,7 +1,7 @@
 // Estado da aplicação + operações que persistem no Firebase.
 //
 // Modelo no Realtime Database:
-//   /pecas/{id}  = { nome, custo, venda, categoria, foto, criadoEm }
+//   /pecas/{id}  = { nome, custo, venda, categoria, tamanho, foto, criadoEm }
 //   /bolsas/{id} = { nome, obs, criadoEm, itens: { pecaId: true } }
 //   /perfis/{uid} = { senhaTrocada }
 //
@@ -136,12 +136,13 @@ export async function marcarSenhaTrocada(uid) {
 
 /* ------------------------------- peças ----------------------------------- */
 
-export async function criarPeca({ nome, custo, venda, categoria: cat, foto }) {
+export async function criarPeca({ nome, custo, venda, categoria: cat, tamanho, foto }) {
   const peca = {
     nome: nome.trim(),
     custo: Number(custo) || 0,
     venda: Number(venda) || 0,
     categoria: cat,
+    tamanho: (tamanho || '').trim(),
     foto: foto || '',
     criadoEm: new Date().toISOString(),
   };
@@ -151,12 +152,13 @@ export async function criarPeca({ nome, custo, venda, categoria: cat, foto }) {
   return id;
 }
 
-export async function atualizarPeca(id, { nome, custo, venda, categoria: cat, foto }) {
+export async function atualizarPeca(id, { nome, custo, venda, categoria: cat, tamanho, foto }) {
   const patch = {
     nome: nome.trim(),
     custo: Number(custo) || 0,
     venda: Number(venda) || 0,
     categoria: cat,
+    tamanho: (tamanho || '').trim(),
     foto: foto || '',
     // `null` apaga o campo: peça antiga migra de `valor` para custo/venda ao
     // ser editada, em vez de ficar com os dois esquemas no mesmo registro.

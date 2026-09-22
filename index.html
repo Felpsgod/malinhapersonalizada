@@ -269,10 +269,20 @@
           <input id="peca-venda" inputmode="decimal" required placeholder="0,00">
         </div>
       </div>
-      <div class="form__row">
+      <div class="form__row form__row--2">
         <div class="field">
           <label for="peca-categoria">Categoria</label>
           <select id="peca-categoria"></select>
+        </div>
+        <div class="field">
+          <label for="peca-tamanho">Tamanho <span class="opt">(opcional)</span></label>
+          <input id="peca-tamanho" list="lista-tamanhos" maxlength="20" autocomplete="off" placeholder="Ex.: M, 38, Único">
+          <datalist id="lista-tamanhos">
+            <option value="PP"><option value="P"><option value="M"><option value="G">
+            <option value="GG"><option value="XG"><option value="34"><option value="36">
+            <option value="38"><option value="40"><option value="42"><option value="44">
+            <option value="46"><option value="48"><option value="Único">
+          </datalist>
         </div>
       </div>
       <div class="form__foot">

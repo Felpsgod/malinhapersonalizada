@@ -57,6 +57,7 @@ function cardPeca(peca, uso) {
       </div>
       <div class="piece__body">
         <div class="piece__name">${esc(peca.nome)}</div>
+        ${peca.tamanho ? `<div class="piece__size">Tamanho ${esc(peca.tamanho)}</div>` : ''}
         <div class="piece__price">${brl(peca.venda)}</div>
         <div class="piece__cost">custo ${brl(peca.custo)}</div>
       </div>

@@ -102,13 +102,14 @@ export function renderRelatorios() {
 export function iniciarRelatorios() {
   $('#btn-exportar').addEventListener('click', () => {
     const { pecas, uso } = separar();
-    const linhas = [['Peça', 'Categoria', 'Custo', 'Venda', 'Situação', 'Bolsa']];
+    const linhas = [['Peça', 'Categoria', 'Tamanho', 'Custo', 'Venda', 'Situação', 'Bolsa']];
     const num = (v) => Number(v || 0).toFixed(2).replace('.', ',');
     pecas.forEach((p) => {
       const alocada = uso[p.id];
       linhas.push([
         p.nome,
         categoria(p.categoria).nome,
+        p.tamanho || '',
         num(p.custo),
         num(p.venda),
         alocada ? 'Em uso' : 'Livre',
@@ -118,7 +119,7 @@ export function iniciarRelatorios() {
     // Fecha o CSV com a soma das duas colunas — é o que se olha primeiro.
     const geral = somar(pecas);
     linhas.push([]);
-    linhas.push(['TOTAL', '', num(geral.custo), num(geral.venda), '', '']);
+    linhas.push(['TOTAL', '', '', num(geral.custo), num(geral.venda), '', '']);
     const hoje = new Date().toISOString().slice(0, 10);
     baixarCSV(`malinha-relatorio-${hoje}.csv`, linhas);
   });

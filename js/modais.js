@@ -70,6 +70,7 @@ export function abrirModalPeca(peca = null) {
   $('#peca-custo').value = peca ? dinheiro(peca.custo) : '';
   $('#peca-venda').value = peca ? dinheiro(peca.venda) : '';
   $('#peca-categoria').value = peca ? categoria(peca.categoria).id : 'blusa';
+  $('#peca-tamanho').value = peca?.tamanho || '';
   $('#peca-err').textContent = '';
   $('#peca-foto').value = '';
   setPreview(peca?.foto || '');
@@ -156,7 +157,12 @@ function ligarModalPeca() {
     const btn = $('#peca-submit');
     btn.disabled = true;
     err.textContent = '';
-    const dados = { nome, custo, venda, categoria: $('#peca-categoria').value, foto: fotoAtual };
+    const dados = {
+      nome, custo, venda,
+      categoria: $('#peca-categoria').value,
+      tamanho: $('#peca-tamanho').value,
+      foto: fotoAtual,
+    };
     try {
       if (pecaEditando) {
         await atualizarPeca(pecaEditando.id, dados);
