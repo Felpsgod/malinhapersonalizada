@@ -162,17 +162,23 @@ button { cursor: pointer; }
   font-size: 12px; color: var(--iron); max-width: 180px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-@media (max-width: 720px) { .nav__conta { display: none; } }
-
-@media (max-width: 720px) {
+/* A barra precisa de ~900px para caber em uma linha. Abaixo disso as abas
+   descem para a própria linha — senão a página inteira ganha rolagem lateral. */
+@media (max-width: 1000px) {
   .nav__inner { height: auto; padding: var(--s3) var(--s4); flex-wrap: wrap; gap: var(--s3); }
   .tabs { margin-left: 0; order: 3; width: 100%; }
-  .tab { flex: 1; text-align: center; }
+  .tab { flex: 1 1 0; min-width: 0; text-align: center; }
   .nav__end { margin-left: auto; }
+}
+@media (max-width: 760px) { .nav__conta { display: none; } }
+@media (max-width: 480px) {
+  .nav__brand-light { display: none; }
+  .tab { font-size: 13px; padding: 8px 6px; letter-spacing: -0.2px; }
 }
 
 /* ---------------------------------- Página ------------------------------- */
 .page { max-width: var(--maxw); margin: 0 auto; padding: var(--s9) var(--s6) var(--s11); }
+@media (max-width: 620px) { .page { padding: var(--s7) var(--s4) var(--s9); } }
 .panel { display: none; }
 .panel.is-active { display: block; animation: rise .32s ease both; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -322,8 +328,10 @@ button { cursor: pointer; }
 
 @media (max-width: 720px) {
   .conta { padding: var(--s5); }
-  .conta__parcelar { width: 100%; }
+  .conta__parcelar { width: 100%; flex-wrap: wrap; }
 }
+.contas > *, .conta { min-width: 0; }
+
 
 /* ---------------------------------- Grid estoque ------------------------- */
 .grid {
@@ -370,6 +378,20 @@ button { cursor: pointer; }
 .piece__acts {
   display: flex; gap: var(--s2); padding: 0 var(--s5) var(--s5); margin-top: auto;
 }
+/* Duas colunas no celular: uma peça por linha dava um cartão de meio metro e
+   obrigava a rolar o estoque inteiro para achar qualquer coisa. Em dois
+   cartões lado a lado os dois selos não cabem na mesma linha, então o de
+   "com quem está" desce para o rodapé da foto. */
+@media (max-width: 620px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: var(--s3); }
+  .piece__body { padding: var(--s4); gap: 2px; }
+  .piece__name { font-size: 15px; }
+  .piece__acts { padding: 0 var(--s4) var(--s4); gap: var(--s2); }
+  .piece__tag, .piece__use { font-size: 10px; padding: 3px 8px; }
+  .piece__tag { top: 8px; left: 8px; }
+  .piece__use { top: auto; bottom: 8px; right: 8px; left: 8px; max-width: none; text-align: center; }
+  .piece__acts .btn--sm { font-size: 13px; padding: 8px 10px; }
+}
 .piece__acts .btn { flex: 1; }
 
 .link-danger {
@@ -390,9 +412,26 @@ button { cursor: pointer; }
 
 /* ---------------------------------- Bolsas ------------------------------- */
 .bolsas-layout { display: grid; grid-template-columns: 320px 1fr; gap: var(--s6); align-items: start; }
-@media (max-width: 1080px) { .bolsas-layout { grid-template-columns: 1fr; } }
+/* Abaixo disso a lista lateral come a largura do look e os nomes das peças
+   viram "Sai...". Melhor empilhar e deixar o workspace inteiro. */
+@media (max-width: 1200px) { .bolsas-layout { grid-template-columns: 1fr; } }
+/* Sem isto, um filho de grid nunca fica menor que o próprio conteúdo e estoura
+   a página para o lado em vez de quebrar linha. */
+.bolsas-layout > *, .bolsa-workspace, .bolsas-list { min-width: 0; }
 
 .bolsas-list { display: flex; flex-direction: column; gap: var(--s3); }
+.bag { min-width: 0; }
+/* Empilhado, uma lista vertical de bolsas joga o workspace para baixo da
+   dobra. Vira faixa que rola na horizontal — a rolagem fica dentro dela, não
+   na página. */
+@media (max-width: 1200px) {
+  .bolsas-list {
+    flex-direction: row; overflow-x: auto; gap: var(--s3);
+    padding-bottom: var(--s2); scroll-snap-type: x proximity;
+  }
+  .bag { flex: 0 0 auto; width: min(260px, 72vw); scroll-snap-align: start; }
+}
+.bag__name { overflow-wrap: anywhere; }
 .bag {
   background: var(--paper); border: 1px solid var(--fog);
   border-radius: var(--r-card-sm); padding: var(--s5);
@@ -419,10 +458,21 @@ button { cursor: pointer; }
 }
 .workspace__actions { display: flex; gap: var(--s2); }
 .workspace__body {
-  display: grid; grid-template-columns: minmax(260px, 380px) 1fr;
+  display: grid; grid-template-columns: minmax(240px, 340px) 1fr;
   gap: var(--s7); padding: var(--s7) 0;
 }
+/* `start` impede que o quadro da bolsa estique para a altura do look: com 20
+   peças na lista ele virava uma caixa de 1700px com a sacola centralizada lá
+   embaixo, fora da tela. */
+.workspace__body { align-items: start; }
+.workspace__body > *, .look { min-width: 0; }
 @media (max-width: 860px) { .workspace__body { grid-template-columns: 1fr; } }
+@media (max-width: 620px) {
+  .workspace { padding: var(--s5); }
+  .workspace__body { gap: var(--s5); padding: var(--s5) 0; }
+  .tote-drop { min-height: 300px; }
+  .tote-drop svg { max-width: 220px; }
+}
 
 /* Bolsa (alvo do arrasto) */
 .tote-drop {
@@ -519,6 +569,13 @@ button { cursor: pointer; }
 
 /* ---------------------------------- Relatórios --------------------------- */
 .stat-row--wide { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+@media (max-width: 480px) {
+  .stat-row, .stat-row--wide { grid-template-columns: 1fr 1fr; }
+  .stat { padding: var(--s4); }
+  .stat__value { font-size: 22px; }
+  .stat__value--par { font-size: 16px; }
+  .stat__value--par span { font-size: 20px; }
+}
 .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); margin-bottom: var(--s5); }
 @media (max-width: 900px) { .rel-grid { grid-template-columns: 1fr; } }
 .card--report { padding: var(--s7); }
@@ -539,6 +596,23 @@ button { cursor: pointer; }
 }
 .table .ph { display: grid; place-items: center; color: var(--fog); font-size: 16px; }
 .table .empty-row td { color: var(--iron); text-align: center; padding: var(--s8) 0; }
+/* No celular a tabela de parcelas vira duas linhas por parcela: número e
+   valor em cima, data e botão embaixo. Quatro colunas não cabem em 360px. */
+@media (max-width: 600px) {
+  .table--parcelas thead { display: none; }
+  .table--parcelas, .table--parcelas tbody { display: block; }
+  .table--parcelas tr {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: var(--s2) var(--s3); align-items: center;
+    padding: var(--s4) 0; border-bottom: 1px solid var(--fog);
+  }
+  .table--parcelas td { display: block; border: 0; padding: 0; }
+  .table--parcelas .parc__campo { justify-self: end; }
+  .table--parcelas .parc__data { font-size: 12px; }
+  .table--parcelas .ta-r { justify-self: end; }
+  .btn-pago { padding: 9px 18px; }
+  .parc__input { width: 96px; }
+}
 .pill-cat {
   border: 1px solid var(--fog); border-radius: var(--r-btn);
   padding: 3px 10px; font-size: 12px; color: var(--charcoal); white-space: nowrap;
