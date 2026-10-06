@@ -27,6 +27,19 @@ export function categoria(id) {
   return CAT_BY_ID[id] || { id: id || 'outro', nome: 'Outro', z: 2, icon: '🧺' };
 }
 
+// Dados que entram na mensagem enviada para a cliente (aba Relatórios).
+export const PIX_CHAVE = 'tvilha@gmail.com';
+
+// Faixas de parcelamento oferecidas, da menor para a maior.
+export const FAIXAS_PARCELAMENTO = [
+  { ate: 500, vezes: 3 },
+  { ate: Infinity, vezes: 5 },
+];
+
+export function parcelasOferecidas(total) {
+  return (FAIXAS_PARCELAMENTO.find((f) => total <= f.ate) || FAIXAS_PARCELAMENTO.at(-1)).vezes;
+}
+
 // Tamanho máximo do lado maior da foto salva (px) e qualidade do JPEG.
 // As fotos vão em base64 dentro do Realtime Database, então precisam ser leves.
 export const FOTO_MAX_LADO = 900;

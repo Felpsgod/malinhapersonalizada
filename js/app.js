@@ -12,6 +12,7 @@ import { iniciarEstoque, renderEstoque } from './estoque.js';
 import { iniciarBolsas, renderBolsas } from './bolsas.js';
 import { iniciarFinanceiro, renderFinanceiro } from './financeiro.js';
 import { iniciarRelatorios, renderRelatorios } from './relatorios.js';
+import { iniciarMensagem, renderMensagem } from './mensagem.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -69,6 +70,7 @@ function renderTudo() {
   renderBolsas();
   renderFinanceiro();
   renderRelatorios();
+  renderMensagem();
 }
 
 async function carregarAcervo(user) {
@@ -202,6 +204,7 @@ async function principal() {
   iniciarBolsas();
   iniciarFinanceiro();
   iniciarRelatorios();
+  iniciarMensagem();
   iniciarAbas();
   iniciarPortao();
 

@@ -215,6 +215,26 @@
 
     <div class="stat-row stat-row--wide" id="rel-stats"></div>
 
+    <article class="card card--report msg">
+      <div class="card__head msg__head">
+        <h3 class="h-xs">Mensagem para a cliente</h3>
+        <div class="msg__pick">
+          <label for="msg-bolsa">Malinha de</label>
+          <select id="msg-bolsa"></select>
+        </div>
+      </div>
+      <p class="muted" id="msg-vazio" hidden>Crie uma bolsa para gerar a mensagem de entrega.</p>
+      <div id="msg-corpo">
+        <textarea id="msg-texto" class="msg__texto" rows="16" spellcheck="false"
+                  aria-label="Mensagem de entrega"></textarea>
+        <div class="msg__acoes">
+          <button class="btn btn--primary btn--sm" id="msg-whats">Enviar no WhatsApp</button>
+          <button class="btn btn--neutral btn--sm" id="msg-copiar">Copiar</button>
+          <button class="link-quiet msg__refazer" id="msg-refazer">Refazer a partir da malinha</button>
+        </div>
+      </div>
+    </article>
+
     <div class="rel-grid">
       <article class="card card--report">
         <div class="card__head">

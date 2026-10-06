@@ -14,7 +14,7 @@ dependências, sem npm.** Basta publicar a pasta.
 | **Estoque** | Cadastro de peças com foto, nome, **custo**, **valor de venda** e categoria. Busca, filtros por categoria e por situação (livre / em uso), editar e excluir. |
 | **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para dentro da bolsa (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome, custo e venda de cada peça ao lado e os dois totais embaixo. Editar e excluir bolsa. |
 | **Financeiro** | Cada bolsa vira uma conta a receber com o valor de venda das peças que estão nela. Você digita em quantas vezes será paga, marca **PAGO** parcela a parcela e pode corrigir o valor de qualquer uma — a última se ajusta sozinha para fechar o total. |
-| **Relatórios** | O que está em uso e com quem, o que continua livre, custo e venda em circulação x parados, resumo por bolsa e exportação em CSV com linha de total. |
+| **Relatórios** | O que está em uso e com quem, o que continua livre, custo e venda em circulação x parados, resumo por bolsa e exportação em CSV com linha de total. Traz também a **mensagem de entrega** pronta para mandar para a cliente, com a lista das peças, o total e as formas de pagamento. |
 
 **Regra central:** uma peça só pode estar em uma bolsa por vez. É isso que torna
 o relatório de "em uso x livre" confiável — a peça alocada aparece marcada no
@@ -44,6 +44,17 @@ e depois 250 na 3ª           →  200  220  250  200  130   (soma: 1.000)
 A sobra de centavos de uma divisão que não fecha cai na última pelo mesmo
 caminho: R$ 1.000 em 3× vira `333,33 · 333,33 · 333,34`. Se as parcelas
 anteriores passarem do total, a última chega a zero e não fica negativa.
+
+## Mensagem para a cliente
+
+A aba Relatórios monta o texto de entrega de uma malinha: saudação, a lista das
+peças com categoria, tamanho e preço, o total, o parcelamento que cabe naquele
+valor e as formas de pagamento. Dá para editar antes de enviar — o texto só é
+regerado quando você troca de malinha ou clica em *Refazer*.
+
+**A mensagem nunca mostra o custo das peças**, só o preço de venda: é texto que
+sai da loja. A chave PIX e as faixas de parcelamento ficam em
+[`js/config.js`](js/config.js), em `PIX_CHAVE` e `FAIXAS_PARCELAMENTO`.
 
 ## Dados
 
@@ -195,6 +206,7 @@ js/estoque.js         aba Estoque
 js/bolsas.js          aba Bolsas (drag & drop, look, bolsa)
 js/financeiro.js      aba Financeiro (parcelas, PAGO, acerto da última)
 js/relatorios.js      aba Relatórios
+js/mensagem.js        mensagem de entrega para a cliente (WhatsApp)
 js/app.js             portão de acesso, abas, carga inicial, sincronização
 ```
 
