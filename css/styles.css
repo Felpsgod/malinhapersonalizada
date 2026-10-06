@@ -600,6 +600,49 @@ button { cursor: pointer; }
   .msg__acoes .btn { flex: 1; }
 }
 
+.msg__nota { font-size: 12px; color: var(--iron); margin: var(--s3) 0 0; }
+
+/* ----------------------------- Folha impressa ---------------------------- */
+/* Vive fora da tela e só existe no papel (ou no "Salvar como PDF"). */
+#impressao { display: none; }
+
+@media print {
+  body > *:not(#impressao) { display: none !important; }
+  #impressao { display: block; }
+  @page { margin: 14mm; }
+  html, body { background: #fff; }
+}
+
+.doc { color: #1d1d1f; font-size: 12pt; line-height: 1.5; }
+.doc__head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1px solid #d6d6d6; padding-bottom: 8px; font-size: 10pt; color: #707070;
+}
+.doc__marca strong { color: #1d1d1f; }
+.doc__titulo { font-size: 20pt; letter-spacing: -0.5px; margin: 18px 0 10px; }
+.doc__abertura { font-size: 13pt; }
+.doc__tabela { width: 100%; border-collapse: collapse; margin: 18px 0 10px; font-size: 10.5pt; }
+.doc__tabela th {
+  text-align: left; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4px;
+  color: #707070; border-bottom: 1px solid #d6d6d6; padding: 6px 8px;
+}
+.doc__tabela td { padding: 7px 8px; border-bottom: 1px solid #ebebeb; vertical-align: middle; }
+.doc__tabela tfoot td { border-top: 1px solid #d6d6d6; border-bottom: 0; font-weight: 600; padding-top: 10px; }
+.doc__n { color: #707070; width: 18px; }
+.doc__foto { width: 46px; }
+.doc__foto img { width: 40px; height: 52px; object-fit: cover; border-radius: 4px; display: block; }
+.doc__ph { font-size: 20px; }
+.doc__peca { font-weight: 600; }
+.doc__vazio { color: #707070; text-align: center; padding: 18px 0; }
+.doc__parcela { margin: 0 0 18px; }
+.doc__pag { border: 1px solid #d6d6d6; border-radius: 10px; padding: 12px 16px; }
+.doc__pag h2 { font-size: 11pt; margin: 0 0 6px; }
+.doc__pag ul { margin: 0; padding-left: 18px; }
+.doc__pag li { margin: 2px 0; }
+.doc__fecho { margin-top: 18px; }
+/* Nenhuma peça deve ser partida entre duas páginas. */
+.doc__tabela tr, .doc__pag { break-inside: avoid; }
+
 .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); margin-bottom: var(--s5); }
 @media (max-width: 900px) { .rel-grid { grid-template-columns: 1fr; } }
 .card--report { padding: var(--s7); }

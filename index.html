@@ -230,8 +230,14 @@
         <div class="msg__acoes">
           <button class="btn btn--primary btn--sm" id="msg-whats">Enviar no WhatsApp</button>
           <button class="btn btn--neutral btn--sm" id="msg-copiar">Copiar</button>
+          <button class="btn btn--neutral btn--sm" id="msg-imprimir">Imprimir / PDF</button>
           <button class="link-quiet msg__refazer" id="msg-refazer">Refazer a partir da malinha</button>
         </div>
+        <p class="msg__nota">
+          A caixa acima é o texto do WhatsApp e pode ser editada.
+          <strong>Imprimir / PDF</strong> gera a folha da malinha com a tabela das peças,
+          sempre a partir do que está na bolsa.
+        </p>
       </div>
     </article>
 
@@ -386,6 +392,9 @@
 </div>
 
 <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<!-- Folha da malinha: fica fora da tela e só aparece na impressão. -->
+<div id="impressao" aria-hidden="true"></div>
 
 <script type="module" src="./js/app.js"></script>
 </body>

@@ -47,10 +47,18 @@ anteriores passarem do total, a última chega a zero e não fica negativa.
 
 ## Mensagem para a cliente
 
-A aba Relatórios monta o texto de entrega de uma malinha: saudação, a lista das
-peças com categoria, tamanho e preço, o total, o parcelamento que cabe naquele
-valor e as formas de pagamento. Dá para editar antes de enviar — o texto só é
-regerado quando você troca de malinha ou clica em *Refazer*.
+A aba Relatórios monta a entrega de uma malinha em dois formatos, os dois com o
+nome da cliente que está na bolsa:
+
+- **Texto para WhatsApp** — saudação, a lista das peças com categoria, tamanho e
+  preço, o total, o parcelamento que cabe naquele valor e as formas de
+  pagamento. Dá para editar antes de enviar; o texto só é regerado quando você
+  troca de malinha ou clica em *Refazer*.
+- **Folha para imprimir** — o botão *Imprimir / PDF* abre a caixa de impressão
+  do navegador, onde "Salvar como PDF" gera o arquivo (no celular, pelo
+  compartilhamento). A folha traz a tabela das peças com miniatura das fotos e
+  sai sempre do estado atual da bolsa, sem acompanhar edições feitas na caixa de
+  texto. Não há biblioteca de PDF no projeto: quem gera é o navegador.
 
 **A mensagem nunca mostra o custo das peças**, só o preço de venda: é texto que
 sai da loja. A chave PIX e as faixas de parcelamento ficam em
