@@ -252,6 +252,79 @@ button { cursor: pointer; }
 .stat--green .stat__value--par span { color: var(--green-deep); }
 .stat--orange .stat__value--par, .stat--green .stat__value--par { color: var(--iron); }
 
+.stat__de { font-size: 15px; font-weight: 400; color: var(--iron); letter-spacing: 0; }
+
+/* --------------------------------- Financeiro ---------------------------- */
+.contas { display: flex; flex-direction: column; gap: var(--s5); }
+.conta { padding: var(--s6) var(--s7); }
+.conta__head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: var(--s5); flex-wrap: wrap;
+}
+.conta__head .h-xs { margin: 0 0 2px; display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+.conta__head .muted { margin: 0; font-size: 14px; }
+.conta__vazio { color: var(--iron); font-size: 14px; margin: var(--s5) 0 0; }
+
+.selo {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.2px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: var(--r-btn); white-space: nowrap;
+}
+.selo--cinza { background: var(--mist); color: var(--slate); }
+.selo--verde { background: rgba(3,170,73,.12); color: var(--green-deep); }
+.selo--laranja { background: rgba(237,99,0,.12); color: var(--orange); }
+
+.conta__parcelar { display: flex; align-items: center; gap: var(--s2); font-size: 14px; color: var(--slate); }
+.conta__qtd {
+  width: 64px; text-align: center; padding: 8px; font-size: 15px;
+  border: 1px solid var(--fog); border-radius: var(--r-link); background: var(--paper);
+}
+
+.conta__barra {
+  height: 6px; background: var(--mist); border-radius: var(--r-btn);
+  margin: var(--s6) 0 var(--s4); overflow: hidden;
+}
+.conta__barra span {
+  display: block; height: 100%; background: var(--green);
+  border-radius: var(--r-btn); transition: width .3s ease;
+}
+.conta__resumo {
+  display: flex; gap: var(--s6); flex-wrap: wrap;
+  font-size: 13px; color: var(--iron); margin-bottom: var(--s4);
+}
+.conta__resumo strong { color: var(--obsidian); font-weight: 600; }
+
+.table--parcelas td { vertical-align: middle; }
+.parc__n { font-weight: 600; white-space: nowrap; }
+.parc__tag {
+  font-size: 11px; font-weight: 500; color: var(--iron);
+  background: var(--mist); border-radius: var(--r-btn); padding: 2px 8px;
+}
+.parc__campo { display: flex; align-items: center; gap: 6px; }
+.parc__moeda { font-size: 13px; color: var(--iron); }
+.parc__input {
+  width: 110px; padding: 7px 10px; font-size: 15px; font-weight: 600;
+  border: 1px solid var(--fog); border-radius: var(--r-link);
+  background: var(--paper); color: var(--obsidian);
+}
+.parc__input:disabled { background: var(--canvas); color: var(--slate); font-weight: 500; }
+.parc__data { font-size: 14px; color: var(--slate); white-space: nowrap; }
+
+.btn-pago {
+  border: 1px solid var(--fog); background: var(--paper); color: var(--slate);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 7px 16px; border-radius: var(--r-btn); white-space: nowrap;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.btn-pago:hover { border-color: var(--green); color: var(--green-deep); }
+.btn-pago.is-pago { background: var(--green); border-color: var(--green); color: var(--paper); }
+.btn-pago.is-pago:hover { background: var(--green-deep); border-color: var(--green-deep); color: var(--paper); }
+.parc.is-pago .parc__input { border-color: rgba(3,170,73,.4); }
+
+@media (max-width: 720px) {
+  .conta { padding: var(--s5); }
+  .conta__parcelar { width: 100%; }
+}
+
 /* ---------------------------------- Grid estoque ------------------------- */
 .grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

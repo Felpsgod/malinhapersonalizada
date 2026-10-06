@@ -64,6 +64,7 @@
     <nav class="tabs" role="tablist" aria-label="Seções">
       <button class="tab is-active" role="tab" data-tab="estoque" aria-selected="true">Estoque</button>
       <button class="tab" role="tab" data-tab="bolsas" aria-selected="false">Bolsas</button>
+      <button class="tab" role="tab" data-tab="financeiro" aria-selected="false">Financeiro</button>
       <button class="tab" role="tab" data-tab="relatorios" aria-selected="false">Relatórios</button>
     </nav>
     <div class="nav__end">
@@ -180,6 +181,25 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ===================== FINANCEIRO ===================== -->
+  <section class="panel" id="panel-financeiro" role="tabpanel">
+    <div class="section-head">
+      <div>
+        <h1 class="h-lg">Financeiro<span class="accent accent--green">.</span></h1>
+        <p class="lede">Cada bolsa é uma conta a receber. Defina as parcelas e marque o que já entrou.</p>
+      </div>
+    </div>
+
+    <div class="stat-row stat-row--wide" id="fin-stats"></div>
+
+    <div class="contas" id="fin-list"></div>
+    <div class="empty" id="fin-empty" hidden>
+      <h3>Nenhuma bolsa para cobrar</h3>
+      <p>Monte uma malinha na aba Bolsas e ela aparece aqui para parcelar.</p>
+      <button class="btn btn--primary" data-tab-link="bolsas">Ir para Bolsas</button>
     </div>
   </section>
 

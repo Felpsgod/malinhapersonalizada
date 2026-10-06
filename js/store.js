@@ -4,6 +4,7 @@
 //   /pecas/{id}  = { nome, custo, venda, categoria, tamanho, foto, criadoEm }
 //   /bolsas/{id} = { nome, obs, criadoEm, itens: { pecaId: true } }
 //   /perfis/{uid} = { senhaTrocada }
+//   /financeiro/{bolsaId} = { qtd, criadoEm, parcelas: { p1: { valor, pago, pagoEm } } }
 //
 // Peças antigas guardavam um único `valor`. Ele é lido como preço de venda e
 // sai do registro na primeira edição — ver `normalizarPeca`.
@@ -17,6 +18,7 @@ import { categoria } from './config.js';
 export const state = {
   pecas: {},
   bolsas: {},
+  financeiro: {},
   perfil: {},
   bolsaAtiva: null,
   carregado: false,
@@ -50,6 +52,7 @@ export async function carregar(uid) {
   const dados = (await db.get('')) || {};
   state.pecas = dados.pecas || {};
   state.bolsas = dados.bolsas || {};
+  state.financeiro = dados.financeiro || {};
   state.perfil = (uid && dados.perfis?.[uid]) || {};
   Object.values(state.pecas).forEach(normalizarPeca);
   // Normaliza: garante que toda bolsa tenha `itens`.
@@ -64,6 +67,7 @@ export async function carregar(uid) {
 export function limpar() {
   state.pecas = {};
   state.bolsas = {};
+  state.financeiro = {};
   state.perfil = {};
   state.bolsaAtiva = null;
   state.carregado = false;
@@ -236,5 +240,128 @@ export async function adicionarPeca(bolsaId, pecaId) {
 export async function removerPeca(bolsaId, pecaId) {
   await db.remove(`bolsas/${bolsaId}/itens/${pecaId}`);
   if (state.bolsas[bolsaId]?.itens) delete state.bolsas[bolsaId].itens[pecaId];
+  emit();
+}
+
+/* ------------------------------ financeiro ------------------------------- */
+//
+// Uma bolsa vira uma conta a receber. O total é sempre o valor de venda das
+// peças que estão nela agora — tirar ou botar roupa mexe no total na hora.
+//
+// As parcelas 1..n-1 guardam o valor que foi (ou será) pago. A ÚLTIMA nunca é
+// guardada: ela é calculada como "o que falta para fechar o total". É isso que
+// faz um mês pago a maior encolher a parcela final — pagou 220 numa de 200, a
+// última cai 20 sozinha.
+
+export const MAX_PARCELAS = 36;
+
+/** Centavos, sem lixo de ponto flutuante (0.1 + 0.2 e amigos). */
+export function centavos(valor) {
+  return Math.round((Number(valor) || 0) * 100) / 100;
+}
+
+/**
+ * Plano de parcelas de uma bolsa, com a última já fechando a conta.
+ * Devolve `null` para bolsa sem parcelamento definido.
+ */
+export function planoDaBolsa(bolsaId) {
+  const bruto = state.financeiro[bolsaId];
+  if (!bruto) return null;
+
+  const qtd = Math.min(MAX_PARCELAS, Math.max(1, Number(bruto.qtd) || 1));
+  const total = totaisDaBolsa(bolsaId).venda;
+  const guardadas = bruto.parcelas || {};
+
+  const parcelas = [];
+  let anteriores = 0;
+  for (let n = 1; n <= qtd; n += 1) {
+    const guardada = guardadas[`p${n}`] || {};
+    const ultima = n === qtd;
+    const valor = ultima
+      // Nunca negativa: se as anteriores já passaram do total, a última zera.
+      ? Math.max(0, centavos(total - anteriores))
+      : centavos(guardada.valor);
+    if (!ultima) anteriores = centavos(anteriores + valor);
+    parcelas.push({
+      n,
+      valor,
+      ultima,
+      pago: guardada.pago === true,
+      pagoEm: guardada.pagoEm || '',
+    });
+  }
+
+  const recebido = centavos(parcelas.reduce((s, p) => s + (p.pago ? p.valor : 0), 0));
+  return {
+    bolsaId,
+    qtd,
+    total,
+    parcelas,
+    recebido,
+    aberto: centavos(Math.max(0, total - recebido)),
+    quitado: recebido >= total && total > 0,
+    criadoEm: bruto.criadoEm || '',
+  };
+}
+
+/** Todas as bolsas com a situação financeira, tenham plano ou não. */
+export function listaFinanceiro() {
+  return listaBolsas().map((bolsa) => ({
+    bolsa,
+    total: totaisDaBolsa(bolsa.id).venda,
+    plano: planoDaBolsa(bolsa.id),
+  }));
+}
+
+/** Cria (ou refaz) o parcelamento, dividindo o total em `qtd` vezes. */
+export async function criarPlano(bolsaId, qtd) {
+  const vezes = Math.min(MAX_PARCELAS, Math.max(1, Math.round(Number(qtd) || 1)));
+  const total = totaisDaBolsa(bolsaId).venda;
+  // As primeiras levam o valor redondo; a sobra de centavos cai na última,
+  // que é calculada na leitura.
+  const base = centavos(total / vezes);
+
+  const parcelas = {};
+  for (let n = 1; n <= vezes; n += 1) {
+    parcelas[`p${n}`] = n === vezes ? { pago: false } : { valor: base, pago: false };
+  }
+  const plano = { qtd: vezes, criadoEm: new Date().toISOString(), parcelas };
+
+  await db.put(`financeiro/${bolsaId}`, plano);
+  state.financeiro[bolsaId] = plano;
+  emit();
+}
+
+export async function removerPlano(bolsaId) {
+  await db.remove(`financeiro/${bolsaId}`);
+  delete state.financeiro[bolsaId];
+  emit();
+}
+
+/** Troca o valor de uma parcela. A última não aceita: ela é sempre derivada. */
+export async function definirValorParcela(bolsaId, n, valor) {
+  const plano = state.financeiro[bolsaId];
+  if (!plano) return;
+  if (n >= (Number(plano.qtd) || 1)) return;
+
+  const limpo = Math.max(0, centavos(valor));
+  await db.put(`financeiro/${bolsaId}/parcelas/p${n}/valor`, limpo);
+  plano.parcelas = plano.parcelas || {};
+  plano.parcelas[`p${n}`] = { ...plano.parcelas[`p${n}`], valor: limpo };
+  emit();
+}
+
+export async function marcarParcela(bolsaId, n, pago) {
+  const plano = state.financeiro[bolsaId];
+  if (!plano) return;
+
+  const patch = { pago, pagoEm: pago ? new Date().toISOString() : null };
+  await db.patch(`financeiro/${bolsaId}/parcelas/p${n}`, patch);
+  plano.parcelas = plano.parcelas || {};
+  plano.parcelas[`p${n}`] = {
+    ...plano.parcelas[`p${n}`],
+    pago,
+    pagoEm: pago ? patch.pagoEm : '',
+  };
   emit();
 }

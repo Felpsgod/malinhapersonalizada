@@ -31,6 +31,24 @@
       }
     },
 
+    "financeiro": {
+      ".write": "auth != null && root.child('acesso').child(auth.uid).val() === true",
+      "$bolsa": {
+        ".validate": "root.child('bolsas').child($bolsa).exists()",
+        "qtd":      { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 36" },
+        "criadoEm": { ".validate": "newData.isString()" },
+        "parcelas": {
+          "$parcela": {
+            "valor":  { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "pago":   { ".validate": "newData.isBoolean()" },
+            "pagoEm": { ".validate": "newData.isString()" },
+            "$outro": { ".validate": false }
+          }
+        },
+        "$outro":   { ".validate": false }
+      }
+    },
+
     "bolsas": {
       ".write": "auth != null && root.child('acesso').child(auth.uid).val() === true",
       "$bolsa": {

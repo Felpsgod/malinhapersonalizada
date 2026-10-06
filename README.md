@@ -1,7 +1,8 @@
 # Malinha Personalizada
 
 Sistema de controle de roupas: estoque com foto, montagem de malinhas por pessoa
-(arrastando as peças para dentro de uma bolsa) e relatórios de uso.
+(arrastando as peças para dentro de uma bolsa), controle de parcelas a receber e
+relatórios de uso.
 
 Site estático — HTML, CSS e JavaScript puro com ES modules. **Sem build, sem
 dependências, sem npm.** Basta publicar a pasta.
@@ -12,6 +13,7 @@ dependências, sem npm.** Basta publicar a pasta.
 | --- | --- |
 | **Estoque** | Cadastro de peças com foto, nome, **custo**, **valor de venda** e categoria. Busca, filtros por categoria e por situação (livre / em uso), editar e excluir. |
 | **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para dentro da bolsa (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome, custo e venda de cada peça ao lado e os dois totais embaixo. Editar e excluir bolsa. |
+| **Financeiro** | Cada bolsa vira uma conta a receber com o valor de venda das peças que estão nela. Você digita em quantas vezes será paga, marca **PAGO** parcela a parcela e pode corrigir o valor de qualquer uma — a última se ajusta sozinha para fechar o total. |
 | **Relatórios** | O que está em uso e com quem, o que continua livre, custo e venda em circulação x parados, resumo por bolsa e exportação em CSV com linha de total. |
 
 **Regra central:** uma peça só pode estar em uma bolsa por vez. É isso que torna
@@ -23,6 +25,25 @@ fora da boca, com a foto recortada, e some por trás da frente da bolsa — a
 leitura é de peça guardada dentro. As peças entram na ordem de vestir (calça
 antes da blusa, casaco por último) e, a partir da sexta, o excedente vira um
 selo `+n` na frente da bolsa.
+
+## Como as parcelas fecham a conta
+
+O total de uma bolsa é sempre a soma do **valor de venda** das peças que estão
+nela agora — tirar ou colocar roupa mexe no total na hora.
+
+As parcelas de 1 a n−1 guardam o valor que foi (ou será) pago. **A última nunca
+é guardada:** ela é calculada como *o que falta para fechar o total*. É isso que
+faz um mês pago a maior encolher a parcela final:
+
+```
+bolsa de R$ 1.000 em 5×      →  200  200  200  200  200
+cliente pagou 220 na 2ª      →  200  220  200  200  180   (soma: 1.000)
+e depois 250 na 3ª           →  200  220  250  200  130   (soma: 1.000)
+```
+
+A sobra de centavos de uma divisão que não fecha cai na última pelo mesmo
+caminho: R$ 1.000 em 3× vira `333,33 · 333,33 · 333,34`. Se as parcelas
+anteriores passarem do total, a última chega a zero e não fica negativa.
 
 ## Dados
 
@@ -48,6 +69,17 @@ Estrutura:
   },
   "perfis": {
     "UID_DA_PESSOA": { "senhaTrocada": true }  // já trocou a senha provisória
+  },
+  "financeiro": {
+    "-Nyyyy": {                  // mesma chave da bolsa
+      "qtd": 5,
+      "criadoEm": "2026-10-06T12:00:00.000Z",
+      "parcelas": {
+        "p1": { "valor": 200, "pago": true, "pagoEm": "2026-10-06T12:00:00.000Z" },
+        "p2": { "valor": 220, "pago": true, "pagoEm": "2026-11-05T12:00:00.000Z" },
+        "p5": { "pago": false }  // a última não guarda valor: é calculada
+      }
+    }
   },
   "bolsas": {
     "-Nyyyy": {
@@ -161,6 +193,7 @@ js/utils.js           formatação BRL, compressão de imagem, toasts, CSV
 js/tote.js            SVG da bolsa e das peças guardadas dentro
 js/estoque.js         aba Estoque
 js/bolsas.js          aba Bolsas (drag & drop, look, bolsa)
+js/financeiro.js      aba Financeiro (parcelas, PAGO, acerto da última)
 js/relatorios.js      aba Relatórios
 js/app.js             portão de acesso, abas, carga inicial, sincronização
 ```

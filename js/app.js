@@ -10,6 +10,7 @@ import { toast } from './utils.js';
 import { iniciarModais } from './modais.js';
 import { iniciarEstoque, renderEstoque } from './estoque.js';
 import { iniciarBolsas, renderBolsas } from './bolsas.js';
+import { iniciarFinanceiro, renderFinanceiro } from './financeiro.js';
 import { iniciarRelatorios, renderRelatorios } from './relatorios.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -39,7 +40,7 @@ function iniciarAbas() {
     if (link) { e.preventDefault(); trocarAba(link.dataset.tabLink); }
   });
   const inicial = location.hash.slice(1);
-  trocarAba(['estoque', 'bolsas', 'relatorios'].includes(inicial) ? inicial : 'estoque');
+  trocarAba(['estoque', 'bolsas', 'financeiro', 'relatorios'].includes(inicial) ? inicial : 'estoque');
 }
 
 /* ------------------------------ sincronização ---------------------------- */
@@ -66,6 +67,7 @@ function iniciarStatus() {
 function renderTudo() {
   renderEstoque();
   renderBolsas();
+  renderFinanceiro();
   renderRelatorios();
 }
 
@@ -198,6 +200,7 @@ async function principal() {
   iniciarModais();
   iniciarEstoque();
   iniciarBolsas();
+  iniciarFinanceiro();
   iniciarRelatorios();
   iniciarAbas();
   iniciarPortao();
