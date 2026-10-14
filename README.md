@@ -13,7 +13,7 @@ dependências, sem npm.** Basta publicar a pasta.
 | --- | --- |
 | **Estoque** | Cadastro de peças com foto, nome, **custo**, **valor de venda** e categoria. Busca, filtros por categoria e por situação (livre / em uso), editar e excluir. |
 | **Bolsas** | Uma malinha por pessoa. Arraste peças do estoque para dentro da bolsa (ou para o cartão da bolsa na lista lateral) e o look vai se montando, com nome, custo e venda de cada peça ao lado e os dois totais embaixo. Editar e excluir bolsa. |
-| **Financeiro** | Cada bolsa vira uma conta a receber com o valor de venda das peças que estão nela. Você digita em quantas vezes será paga, marca **PAGO** parcela a parcela e pode corrigir o valor de qualquer uma — a última se ajusta sozinha para fechar o total. |
+| **Financeiro** | Cada bolsa vira uma conta a receber com o valor de venda das peças que estão nela. Você digita em quantas vezes será paga, marca **PAGO** parcela a parcela e pode corrigir o valor de qualquer uma — a última se ajusta sozinha para fechar o total. O botão **Gerar carnê** imprime as fichas destacáveis para entregar à cliente. |
 | **Relatórios** | O que está em uso e com quem, o que continua livre, custo e venda em circulação x parados, resumo por bolsa e exportação em CSV com linha de total. Traz também a **mensagem de entrega** pronta para mandar para a cliente, com a lista das peças, o total e as formas de pagamento. |
 
 **Regra central:** uma peça só pode estar em uma bolsa por vez. É isso que torna
@@ -63,6 +63,20 @@ nome da cliente que está na bolsa:
 **A mensagem nunca mostra o custo das peças**, só o preço de venda: é texto que
 sai da loja. A chave PIX e as faixas de parcelamento ficam em
 [`js/config.js`](js/config.js), em `PIX_CHAVE` e `FAIXAS_PARCELAMENTO`.
+
+## Carnê
+
+O botão *Gerar carnê*, em cada conta da aba Financeiro, monta uma ficha
+destacável por parcela — número, nome da cliente, vencimento, valor, chave PIX
+e espaço para anotar a data do pagamento. Parcela já marcada como paga sai
+carimbada. Vão duas fichas por linha no A4 e nenhuma é partida entre páginas.
+
+**Os vencimentos são contados, não guardados:** um mês por parcela a partir da
+data em que o parcelamento foi criado, encurtando para o último dia quando o
+mês de destino é mais curto (31/01 + 1 mês = 28/02). Guardar uma data escolhida
+à mão exigiria um campo novo em `/financeiro` e, com ele, outra publicação das
+regras — quando essa escolha for necessária, basta acrescentar `primeiroVenc`
+ao plano e às regras.
 
 ## Dados
 
@@ -215,6 +229,8 @@ js/bolsas.js          aba Bolsas (drag & drop, look, bolsa)
 js/financeiro.js      aba Financeiro (parcelas, PAGO, acerto da última)
 js/relatorios.js      aba Relatórios
 js/mensagem.js        mensagem de entrega para a cliente (WhatsApp)
+js/carne.js           carnê de pagamento, uma ficha por parcela
+js/impressao.js       caixa única de impressão e soma de meses
 js/app.js             portão de acesso, abas, carga inicial, sincronização
 ```
 

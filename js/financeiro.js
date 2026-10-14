@@ -10,6 +10,8 @@ import {
   planoDaBolsa, removerPlano,
 } from './store.js';
 import { confirmar } from './modais.js';
+import { montarCarne } from './carne.js';
+import { imprimir } from './impressao.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -94,7 +96,9 @@ function cartaoConta({ bolsa, total, plano }) {
       <button class="btn btn--neutral btn--sm" data-gerar="${bolsa.id}">
         ${plano ? 'Refazer' : 'Gerar parcelas'}
       </button>
-      ${plano ? `<button class="link-danger" data-remover-plano="${bolsa.id}">Remover</button>` : ''}
+      ${plano ? `
+        <button class="btn btn--neutral btn--sm" data-carne="${bolsa.id}">Gerar carnê</button>
+        <button class="link-danger" data-remover-plano="${bolsa.id}">Remover</button>` : ''}
     </div>`;
 
   return `
@@ -168,6 +172,12 @@ export function iniciarFinanceiro() {
       } catch (err) {
         toast(`Não consegui remover: ${err.message}`, 'err');
       }
+      return;
+    }
+
+    const carne = e.target.closest('[data-carne]');
+    if (carne) {
+      imprimir(montarCarne(carne.dataset.carne));
       return;
     }
 

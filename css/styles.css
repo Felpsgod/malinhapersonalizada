@@ -640,6 +640,37 @@ button { cursor: pointer; }
 .doc__pag ul { margin: 0; padding-left: 18px; }
 .doc__pag li { margin: 2px 0; }
 .doc__fecho { margin-top: 18px; }
+
+/* Carnê: uma ficha destacável por parcela, duas por linha no A4. */
+.carne__resumo { font-size: 11pt; color: #474747; margin: 0 0 16px; }
+.carne__fichas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ficha {
+  display: flex; border: 1px dashed #9a9a9a; border-radius: 6px;
+  overflow: hidden; break-inside: avoid; min-height: 104px;
+}
+.ficha__canhoto {
+  flex: 0 0 82px; border-right: 1px dashed #9a9a9a; padding: 8px 9px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  background: #f5f5f7;
+}
+.ficha__num { font-size: 19pt; font-weight: 600; line-height: 1; letter-spacing: -0.5px; }
+.ficha__num span { font-size: 10pt; font-weight: 400; color: #707070; }
+.ficha__marca { font-size: 7pt; line-height: 1.3; color: #707070; }
+.ficha__corpo { flex: 1; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+.ficha__cliente { font-size: 11.5pt; font-weight: 600; letter-spacing: -0.2px; }
+.ficha__grade { display: flex; gap: 16px; }
+.ficha__grade span { display: block; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; color: #707070; }
+.ficha__grade strong { font-size: 11pt; }
+.ficha__valor { font-size: 13pt; }
+.ficha__pix { font-size: 8.5pt; color: #474747; }
+.ficha__assina { margin-top: auto; font-size: 9pt; color: #707070; }
+.ficha__pago {
+  margin-top: auto; font-size: 9pt; font-weight: 600; color: #03873a;
+  letter-spacing: 0.4px;
+}
+.ficha.is-paga { border-color: #03aa49; }
+.ficha.is-paga .ficha__canhoto { background: rgba(3,170,73,.1); border-right-color: #03aa49; }
+.carne__nota { font-size: 9.5pt; color: #707070; margin-top: 16px; }
 /* Nenhuma peça deve ser partida entre duas páginas. */
 .doc__tabela tr, .doc__pag { break-inside: avoid; }
 

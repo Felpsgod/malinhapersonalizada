@@ -7,6 +7,7 @@
 import { PIX_CHAVE, categoria, parcelasOferecidas } from './config.js';
 import { brl, dataBR, esc, toast } from './utils.js';
 import { itensDaBolsa, listaBolsas, state, totaisDaBolsa } from './store.js';
+import { imprimir } from './impressao.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -139,10 +140,6 @@ export function montarImpressao(bolsaId) {
 
 function gerar() {
   $('#msg-texto').value = bolsaEscolhida ? montarMensagem(bolsaEscolhida) : '';
-  // A folha de impressão é sempre a versão estruturada da malinha escolhida —
-  // ela não acompanha o que for editado à mão na caixa de texto, que é o
-  // formato de WhatsApp.
-  $('#impressao').innerHTML = bolsaEscolhida ? montarImpressao(bolsaEscolhida) : '';
 }
 
 export function renderMensagem() {
@@ -162,12 +159,7 @@ export function renderMensagem() {
 
   // Só reescreve o texto se a pessoa ainda não mexeu nele — quem ajustou a
   // mensagem à mão não perde o ajuste porque o estoque mudou em outra aba.
-  if ($('#msg-texto').dataset.editado) {
-    // Mesmo com o texto editado, a folha segue o estado atual da malinha.
-    $('#impressao').innerHTML = montarImpressao(bolsaEscolhida);
-  } else {
-    gerar();
-  }
+  if (!$('#msg-texto').dataset.editado) gerar();
 }
 
 async function copiar() {
@@ -203,8 +195,12 @@ export function iniciarMensagem() {
   $('#msg-copiar').addEventListener('click', copiar);
 
   // Sem biblioteca de PDF: a própria caixa de impressão do navegador tem
-  // "Salvar como PDF", e no celular sai pelo compartilhamento.
-  $('#msg-imprimir').addEventListener('click', () => window.print());
+  // "Salvar como PDF", e no celular sai pelo compartilhamento. A folha é
+  // montada na hora, sempre a partir do estado atual da bolsa — nunca do que
+  // foi editado à mão na caixa de texto, que é o formato de WhatsApp.
+  $('#msg-imprimir').addEventListener('click', () => {
+    if (bolsaEscolhida) imprimir(montarImpressao(bolsaEscolhida));
+  });
 
   $('#msg-whats').addEventListener('click', () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(texto.value)}`, '_blank', 'noopener');
