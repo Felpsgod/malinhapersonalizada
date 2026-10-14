@@ -12,20 +12,29 @@ import { brl, dataBR, esc } from './utils.js';
 import { planoDaBolsa, state } from './store.js';
 import { somarMeses } from './impressao.js';
 
+// Cor do fio de cada ficha, em rodízio. Verde fica de fora do rodízio: ele é o
+// sinal de parcela paga, e repetido aqui viraria confusão.
+const FIOS = ['#8668ff', '#0071e3', '#00a1b3', '#ed6300', '#d6336c'];
+const FIO_PAGO = '#03aa49';
+
 /** Vencimento da parcela `n`: um mês por parcela a partir da criação do plano. */
 export function vencimento(plano, n) {
   const d = somarMeses(plano.criadoEm || new Date().toISOString(), n);
   return d ? d.toISOString() : '';
 }
 
-function ficha(bolsa, plano, parcela) {
+function ficha(bolsa, plano, parcela, indice) {
   const venceEm = dataBR(vencimento(plano, parcela.n));
   const rodape = parcela.pago
     ? `<div class="ficha__pago">PAGO${parcela.pagoEm ? ` em ${dataBR(parcela.pagoEm)}` : ''}</div>`
     : '<div class="ficha__assina">Pago em ____ /____ /______</div>';
 
+  // A cor sai daqui, e não do CSS: `style` inline vence qualquer regra de
+  // folha, então uma ficha paga continuaria com a cor do rodízio.
+  const fio = parcela.pago ? FIO_PAGO : FIOS[indice % FIOS.length];
+
   return `
-    <article class="ficha${parcela.pago ? ' is-paga' : ''}">
+    <article class="ficha${parcela.pago ? ' is-paga' : ''}" style="--fio: ${fio}">
       <div class="ficha__canhoto">
         <span class="ficha__num">${parcela.n}<span>/${plano.qtd}</span></span>
         <span class="ficha__marca">Malinha<br><strong>Personalizada</strong></span>
@@ -66,12 +75,7 @@ export function montarCarne(bolsaId) {
       </p>
 
       <div class="carne__fichas">
-        ${plano.parcelas.map((p) => ficha(bolsa, plano, p)).join('')}
+        ${plano.parcelas.map((p, i) => ficha(bolsa, plano, p, i)).join('')}
       </div>
-
-      <p class="carne__nota">
-        Guarde este carnê. A cada pagamento, marque a data na ficha
-        correspondente. Dúvidas? É só chamar a gente. 💛
-      </p>
     </section>`;
 }

@@ -71,6 +71,10 @@ destacável por parcela — número, nome da cliente, vencimento, valor, chave P
 e espaço para anotar a data do pagamento. Parcela já marcada como paga sai
 carimbada. Vão duas fichas por linha no A4 e nenhuma é partida entre páginas.
 
+Cada ficha tem o fio de uma cor, em rodízio, e a cor vai **só na borda**: fundo
+colorido a impressora pode descartar, borda ela sempre imprime — e sem gastar
+tinta à toa. O verde fica fora do rodízio porque é o sinal de parcela paga.
+
 **Os vencimentos são contados, não guardados:** um mês por parcela a partir da
 data em que o parcelamento foi criado, encurtando para o último dia quando o
 mês de destino é mais curto (31/01 + 1 mês = 28/02). Guardar uma data escolhida
