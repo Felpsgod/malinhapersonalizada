@@ -686,6 +686,15 @@ button { cursor: pointer; }
   font-weight: 600; padding-top: 8px; font-size: 10.5pt;
 }
 .compra__n { width: 18px; color: #707070; }
+.compra__foto { width: 40px; padding-left: 0; }
+.compra__foto img {
+  width: 32px; height: 42px; object-fit: cover;
+  border-radius: 4px; display: block; border: 1px solid #ebebeb;
+}
+.compra__ph {
+  width: 32px; height: 42px; border-radius: 4px; border: 1px solid #ebebeb;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
 .compra__peca { font-weight: 600; }
 .compra__cat { color: #707070; font-size: 9pt; }
 /* Nenhuma peça deve ser partida entre duas páginas. */

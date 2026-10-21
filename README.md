@@ -71,8 +71,9 @@ destacável por parcela — número, nome da cliente, vencimento, valor, chave P
 e espaço para anotar a data do pagamento. Parcela já marcada como paga sai
 carimbada. Vão duas fichas por linha no A4 e nenhuma é partida entre páginas.
 
-Fechando a folha vem a relação do que foi comprado — peça, categoria, tamanho e
-**preço de venda** —, com o total conferindo com a soma das parcelas. Como todo
+Fechando a folha vem a relação do que foi comprado — miniatura da foto, peça,
+categoria, tamanho e **preço de venda** —, com o total conferindo com a soma das
+parcelas. Peça sem foto cadastrada entra com o ícone da categoria. Como todo
 papel que fica com a cliente, o custo não aparece.
 
 Cada ficha tem o fio de uma cor, em rodízio, e a cor vai **só na borda**: fundo

@@ -62,9 +62,14 @@ function compra(bolsaId, total) {
   const linhas = itens.map((peca, i) => {
     const cat = categoria(peca.categoria);
     const detalhe = peca.tamanho ? `${cat.nome} · Tam. ${peca.tamanho}` : cat.nome;
+    // Miniatura em <img>: imagem de conteúdo a impressora imprime, fundo não.
+    const foto = peca.foto
+      ? `<img src="${peca.foto}" alt="">`
+      : `<span class="compra__ph">${cat.icon}</span>`;
     return `
       <tr>
         <td class="compra__n">${i + 1}</td>
+        <td class="compra__foto">${foto}</td>
         <td class="compra__peca">${esc(peca.nome)}</td>
         <td class="compra__cat">${esc(detalhe)}</td>
         <td class="ta-r">${brl(peca.venda)}</td>
@@ -78,7 +83,7 @@ function compra(bolsaId, total) {
         <tbody>${linhas}</tbody>
         <tfoot>
           <tr>
-            <td colspan="3">Total · ${itens.length} ${itens.length === 1 ? 'peça' : 'peças'}</td>
+            <td colspan="4">Total · ${itens.length} ${itens.length === 1 ? 'peça' : 'peças'}</td>
             <td class="ta-r">${brl(total)}</td>
           </tr>
         </tfoot>
