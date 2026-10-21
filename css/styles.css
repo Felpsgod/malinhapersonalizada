@@ -672,6 +672,22 @@ button { cursor: pointer; }
 }
 /* O fio de cada ficha vem no `style` inline, montado em carne.js — inclusive o
    verde da parcela paga, que é o mesmo sinal do botão PAGO no app. */
+
+/* Relação da compra, fechando o carnê. */
+.carne__compra { margin-top: 18px; break-inside: avoid; }
+.carne__compra h2 {
+  font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px;
+  color: #707070; margin: 0 0 6px; font-weight: 600;
+}
+.compra__tabela { width: 100%; border-collapse: collapse; font-size: 10pt; }
+.compra__tabela td { padding: 5px 6px; border-bottom: 1px solid #ebebeb; }
+.compra__tabela tfoot td {
+  border-top: 1px solid #9a9a9a; border-bottom: 0;
+  font-weight: 600; padding-top: 8px; font-size: 10.5pt;
+}
+.compra__n { width: 18px; color: #707070; }
+.compra__peca { font-weight: 600; }
+.compra__cat { color: #707070; font-size: 9pt; }
 /* Nenhuma peça deve ser partida entre duas páginas. */
 .doc__tabela tr, .doc__pag { break-inside: avoid; }
 

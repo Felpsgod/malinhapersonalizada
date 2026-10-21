@@ -7,9 +7,9 @@
 // publicação das regras; quando essa escolha for necessária, é só acrescentar
 // `primeiroVenc` ao plano e às regras.
 
-import { PIX_CHAVE } from './config.js';
+import { PIX_CHAVE, categoria } from './config.js';
 import { brl, dataBR, esc } from './utils.js';
-import { planoDaBolsa, state } from './store.js';
+import { itensDaBolsa, planoDaBolsa, state } from './store.js';
 import { somarMeses } from './impressao.js';
 
 // Cor do fio de cada ficha, em rodízio. Verde fica de fora do rodízio: ele é o
@@ -51,6 +51,41 @@ function ficha(bolsa, plano, parcela, indice) {
     </article>`;
 }
 
+/**
+ * Relação do que foi comprado, fechando o carnê. Só preço de venda: é papel
+ * que fica com a cliente.
+ */
+function compra(bolsaId, total) {
+  const itens = itensDaBolsa(bolsaId);
+  if (!itens.length) return '';
+
+  const linhas = itens.map((peca, i) => {
+    const cat = categoria(peca.categoria);
+    const detalhe = peca.tamanho ? `${cat.nome} · Tam. ${peca.tamanho}` : cat.nome;
+    return `
+      <tr>
+        <td class="compra__n">${i + 1}</td>
+        <td class="compra__peca">${esc(peca.nome)}</td>
+        <td class="compra__cat">${esc(detalhe)}</td>
+        <td class="ta-r">${brl(peca.venda)}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <section class="carne__compra">
+      <h2>Peças desta malinha</h2>
+      <table class="compra__tabela">
+        <tbody>${linhas}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">Total · ${itens.length} ${itens.length === 1 ? 'peça' : 'peças'}</td>
+            <td class="ta-r">${brl(total)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>`;
+}
+
 /** Carnê completo de uma bolsa. Devolve '' se ela não tiver parcelamento. */
 export function montarCarne(bolsaId) {
   const bolsa = state.bolsas[bolsaId];
@@ -77,5 +112,7 @@ export function montarCarne(bolsaId) {
       <div class="carne__fichas">
         ${plano.parcelas.map((p, i) => ficha(bolsa, plano, p, i)).join('')}
       </div>
+
+      ${compra(bolsaId, plano.total)}
     </section>`;
 }
